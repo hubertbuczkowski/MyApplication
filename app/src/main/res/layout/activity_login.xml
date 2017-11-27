@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/activity"
+        android:layout_width="185dp"
+        android:layout_height="62dp"
+        android:layout_marginEnd="200dp"
+        android:layout_marginStart="70dp"
+        android:layout_marginTop="59dp"
+        android:text="Lifestyle"
+        android:textColor="@color/colorPrimary"
+        android:textSize="45dp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/tracker"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <TextView
+        android:id="@+id/tracker"
+        android:layout_width="203dp"
+        android:layout_height="59dp"
+        android:layout_marginBottom="72dp"
+        android:layout_marginEnd="80dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginStart="170dp"
+        android:text="Optimizer"
+        android:textColor="@color/colorPrimaryDark"
+        android:textSize="45dp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/UsernameText"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/RegBtn"
+        style="@style/Widget.AppCompat.Button.Colored"
+        android:layout_width="360dp"
+        android:layout_height="50dp"
+        android:layout_marginBottom="112dp"
+        android:text="Register"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <EditText
+        android:id="@+id/UsernameText"
+        android:layout_width="360dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="252dp"
+        android:ems="10"
+        android:hint="Username"
+        android:inputType="textPersonName"
+        app:layout_constraintHorizontal_bias="0.49"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <EditText
+        android:id="@+id/PassText"
+        android:layout_width="360dp"
+        android:layout_height="47dp"
+        android:layout_marginTop="24dp"
+        android:ems="10"
+        android:hint="Password"
+        android:inputType="textPassword"
+        app:layout_constraintHorizontal_bias="0.49"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/UsernameText" />
+
+    <Button
+        android:id="@+id/LoginBtn"
+        style="@style/Widget.AppCompat.Button.Colored"
+        android:layout_width="360dp"
+        android:layout_height="50dp"
+        android:text="Login"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintHorizontal_bias="0.49"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.697" />
+</android.support.constraint.ConstraintLayout>
