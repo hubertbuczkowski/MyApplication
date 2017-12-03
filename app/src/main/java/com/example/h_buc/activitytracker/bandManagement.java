@@ -15,11 +15,17 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.sql.Driver;
 import java.util.Arrays;
 import java.util.Set;
 
 import com.example.h_buc.activitytracker.Helpers.CustomBluetoothProfile;
 import com.example.h_buc.activitytracker.R;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 /**
  * Created by h_buc on 13/11/2017.
@@ -35,10 +41,8 @@ public class bandManagement extends AppCompatActivity {
     TextView txtStatus;
     TextView txtMac;
     TextView heartRate;
-
-
-    //EditText txtPhysicalAddress;
-    String txtPhysicalAddress;
+    FirebaseDatabase db;
+    DatabaseReference dRef ;
 
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -47,6 +51,21 @@ public class bandManagement extends AppCompatActivity {
         setContentView(R.layout.activity_connection);
         initialie();
         getBoundedDevice();
+
+        db = FirebaseDatabase.getInstance();
+        dRef = db.getReference("SimpleMessage");
+        dRef.addValueEventListener(new ValueEventListener() {
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                String value = dataSnapshot.getValue(String.class);
+                heartRate.setText(value);
+                Log.d("DB SUCC", "Value is: " + value);
+            }
+
+            public void onCancelled(DatabaseError error) {
+                // Failed to read value
+                Log.w("DB WARN", "Failed to read value.", error.toException());
+            }
+        });
 
     }
 
@@ -82,6 +101,11 @@ public class bandManagement extends AppCompatActivity {
                 startConnecting(bd.getAddress());
             }
         }
+    }
+
+    void sendData(String results){
+        dRef = db.getReference("SimpleMessage");
+        dRef.setValue(results);
     }
 
     void startScanHeartRate() {
@@ -150,7 +174,8 @@ public class bandManagement extends AppCompatActivity {
             super.onCharacteristicChanged(gatt, characteristic);
             byte[] data = characteristic.getValue();
             Log.v("results", Arrays.toString(data));
-            heartRate.setText(Arrays.toString(data));
+            //heartRate.setText(Arrays.toString(data));
+            sendData(Arrays.toString(data));
         }
 
         @Override
