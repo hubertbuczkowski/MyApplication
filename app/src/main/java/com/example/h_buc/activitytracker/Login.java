@@ -18,12 +18,15 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 public class Login extends AppCompatActivity {
 
     TextView user;
     TextView pass;
     private FirebaseAuth mAuth;
+    SaveSharedPreference session;
 
 
     @Override
@@ -34,7 +37,14 @@ public class Login extends AppCompatActivity {
         setContentView(R.layout.activity_login);
         mAuth = FirebaseAuth.getInstance();
 
-       // dbConnect var1 = new dbConnect();
+        if(SaveSharedPreference.getUserName(getApplicationContext()).length() == 0)
+        {
+            System.out.println("User doesnt exist");
+        }
+        else
+        {
+            autoLogin(SaveSharedPreference.getUserName(getApplicationContext()), SaveSharedPreference.getPassword(getApplicationContext()));
+        }
         //var1.ConnectionToDB();
         user = findViewById(R.id.UsernameText);
         pass = findViewById(R.id.PassText);
@@ -88,20 +98,42 @@ public class Login extends AppCompatActivity {
 
     private void login()
     {
-        String username = user.getText().toString().trim();
-        String password = pass.getText().toString().trim();
+        final String username = user.getText().toString().trim();
+        final String password = pass.getText().toString().trim();
 
         if(checkUser(username, password)) {
             mAuth.signInWithEmailAndPassword(username, password).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                 @Override
                 public void onComplete(@NonNull Task<AuthResult> task) {
                     if (task.isSuccessful()) {
-                        Intent intent = new Intent(Login.this, bandManagement.class);
+                        SaveSharedPreference.setUserName(getApplicationContext(), username, password);
+                        Intent intent = new Intent(getApplicationContext(), bandManagement.class);
                         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         startActivity(intent);
                     }
                     else {
                          Toast.makeText(getApplicationContext(), task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+
+        }
+    }
+
+    private void autoLogin(final String username, final String password)
+    {
+        if(checkUser(username, password)) {
+            mAuth.signInWithEmailAndPassword(username, password).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                @Override
+                public void onComplete(@NonNull Task<AuthResult> task) {
+                    if (task.isSuccessful()) {
+                        SaveSharedPreference.setUserName(getApplicationContext(), username, password);
+                        Intent intent = new Intent(getApplicationContext(), bandManagement.class);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        startActivity(intent);
+                    }
+                    else {
+                        Toast.makeText(getApplicationContext(), task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 }
             });
@@ -123,6 +155,8 @@ public class Login extends AppCompatActivity {
                             if (task.isSuccessful()) {
                                 // Sign in success, update UI with the signed-in user's information
                                 FirebaseUser user = mAuth.getCurrentUser();
+                                DatabaseReference database = FirebaseDatabase.getInstance().getReference();
+                                database.child(user.getUid()).child("Firstname").setValue("Fresh register");
                             } else {
 
                                 if (task.getException() instanceof FirebaseAuthUserCollisionException) {
