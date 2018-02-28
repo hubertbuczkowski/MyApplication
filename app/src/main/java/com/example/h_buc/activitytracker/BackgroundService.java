@@ -1,0 +1,101 @@
+package com.example.h_buc.activitytracker;
+
+import android.app.IntentService;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.app.Service;
+import android.content.Context;
+import android.content.Intent;
+import android.os.Build;
+import android.os.Handler;
+import android.os.IBinder;
+import android.os.Looper;
+import android.support.annotation.Nullable;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
+import android.widget.Toast;
+
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.TimerTask;
+
+/**
+ * Created by h_buc on 27/02/2018.
+ */
+
+public class BackgroundService extends IntentService {
+
+    Records rc = new Records();
+
+    public BackgroundService() {
+        super(BackgroundService.class.getName());
+    }
+
+    @Override
+    protected void onHandleIntent(@Nullable Intent intent) {
+        String dataString = intent.getDataString();
+
+        rc.Records(getApplication());
+
+        java.util.Timer t = new java.util.Timer();
+        t.schedule(new TimerTask() {
+
+
+            @Override
+            public void run() {
+                showNoti();
+            }
+        }, 10000, 5000*60);
+    }
+
+    public void showNoti(){
+        Handler handler = new Handler(Looper.getMainLooper());
+        handler.post(new Runnable() {
+
+            @Override
+            public void run() {
+                FirebaseAuth mAuth = FirebaseAuth.getInstance();
+                FirebaseUser currentUser = mAuth.getCurrentUser();
+                DatabaseReference database = FirebaseDatabase.getInstance().getReference(currentUser.getUid());
+
+                Date date = new Date();
+                String current_date = new SimpleDateFormat("ddMMyyyy").format(date);
+                String current_time = new SimpleDateFormat("HH:mm").format(date);
+
+
+                String st = rc.getSteps();
+                String hr = rc.getHeart();
+
+                rc.update();
+
+
+                database.child("Records").child(current_date).child(current_time).child("Steps").setValue(st);
+                database.child("Records").child(current_date).child(current_time).child("Heart Rate").setValue(hr);
+
+                Toast.makeText(getApplicationContext(), "recorded", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        /*NotificationCompat.Builder mBuilder =
+                new NotificationCompat.Builder(this)
+                        .setSmallIcon(R.drawable.design_password_eye)
+                        .setContentTitle("My notification")
+                        .setContentText("Hello World!");
+
+
+
+        NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+
+        NotificationManager.notify().mNotificationManager.notify(001, mBuilder.build());*/
+    }
+
+
+}
