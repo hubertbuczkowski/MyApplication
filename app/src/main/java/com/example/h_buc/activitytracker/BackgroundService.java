@@ -65,19 +65,7 @@ public class BackgroundService extends IntentService {
                 FirebaseUser currentUser = mAuth.getCurrentUser();
                 DatabaseReference database = FirebaseDatabase.getInstance().getReference(currentUser.getUid());
 
-                Date date = new Date();
-                String current_date = new SimpleDateFormat("ddMMyyyy").format(date);
-                String current_time = new SimpleDateFormat("HH:mm").format(date);
-
-
-                String st = rc.getSteps();
-                String hr = rc.getHeart();
-
-                rc.update();
-
-
-                database.child("Records").child(current_date).child(current_time).child("Steps").setValue(st);
-                database.child("Records").child(current_date).child(current_time).child("Heart Rate").setValue(hr);
+                rc.update(database);
 
                 Toast.makeText(getApplicationContext(), "recorded", Toast.LENGTH_SHORT).show();
             }

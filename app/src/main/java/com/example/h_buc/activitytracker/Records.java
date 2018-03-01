@@ -18,7 +18,9 @@ import com.google.android.gms.fitness.data.DataType;
 import com.google.android.gms.fitness.data.Value;
 import com.google.android.gms.fitness.request.DataReadRequest;
 import com.google.android.gms.fitness.result.DataReadResult;
+import com.google.firebase.database.DatabaseReference;
 
+import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -33,7 +35,6 @@ import java.util.concurrent.TimeUnit;
  */
 
 public class Records implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
-    private Date dt = new Date();
     private String steps;
     private String heartRate;
     GoogleApiClient mClient;
@@ -65,19 +66,6 @@ public class Records implements GoogleApiClient.ConnectionCallbacks, GoogleApiCl
                 .setType(DataSource.TYPE_DERIVED)
                 .setStreamName("estimated_steps")
                 .build();
-
-        Calendar cal = Calendar.getInstance();
-        Date now = new Date();
-        cal.setTime(getEndOfDay(now));
-        long endTime = cal.getTimeInMillis();
-        cal.add(Calendar.DAY_OF_WEEK, -1);
-        long startTime = cal.getTimeInMillis();
-
-        req = new DataReadRequest.Builder()
-                .aggregate(ds,DataType.AGGREGATE_STEP_COUNT_DELTA)
-                .bucketByTime(1, TimeUnit.DAYS)
-                .setTimeRange(startTime, endTime, TimeUnit.MILLISECONDS)
-                .build();
     }
 
     public String getSteps()
@@ -96,18 +84,76 @@ public class Records implements GoogleApiClient.ConnectionCallbacks, GoogleApiCl
         return localDateTimeToDate(endOfDay);
     }
 
-    private static Date localDateTimeToDate(LocalDateTime startOfDay) {
-        return Date.from(startOfDay.atZone(ZoneId.systemDefault()).toInstant());
-    }
 
-    private static LocalDateTime dateToLocalDateTime(Date date) {
-        return LocalDateTime.ofInstant(Instant.ofEpochMilli(date.getTime()), ZoneId.systemDefault());
-    }
 
     private void showDataSet(DataSet dataSet) {
         Value f =  dataSet.getDataPoints().get(0).getValue(dataSet.getDataPoints().get(0).getDataType().getFields().get(0));
         this.steps = f.toString();
     }
+
+    private void uploadData(DataSet dataSet, DatabaseReference database){
+        Value f =  dataSet.getDataPoints().get(0).getValue(dataSet.getDataPoints().get(0).getDataType().getFields().get(0));
+        this.steps = f.toString();
+
+        Date date = new Date();
+        String current_date = new SimpleDateFormat("ddMMyyyy").format(date);
+        String current_time = new SimpleDateFormat("HH:mm").format(date);
+
+        database.child("Records").child(current_date).child(current_time).child("Steps").setValue(this.steps);
+        database.child("Records").child(current_date).child(current_time).child("Heart Rate").setValue(this.heartRate);
+    }
+
+
+    public void update(){
+        Calendar cal = Calendar.getInstance();
+        Date now = new Date();
+        cal.setTime(getEndOfDay(now));
+        long endTime = cal.getTimeInMillis();
+        cal.add(Calendar.DAY_OF_WEEK, -1);
+        long startTime = cal.getTimeInMillis();
+
+        req = new DataReadRequest.Builder()
+                .aggregate(ds,DataType.AGGREGATE_STEP_COUNT_DELTA)
+                .bucketByTime(1, TimeUnit.DAYS)
+                .setTimeRange(startTime, endTime, TimeUnit.MILLISECONDS)
+                .build();
+
+        PendingResult<DataReadResult> resultsData = Fitness.HistoryApi.readData(mClient, req);
+
+        resultsData.setResultCallback(new ResultCallback<DataReadResult>() {
+            @Override
+            public void onResult(@NonNull DataReadResult dataReadResult) {
+                showDataSet(dataReadResult.getBuckets().get(0).getDataSets().get(0));
+            }
+        });
+    }
+
+    public void update(final DatabaseReference database){
+        Calendar cal = Calendar.getInstance();
+        Date now = new Date();
+        cal.setTime(getEndOfDay(now));
+        long endTime = cal.getTimeInMillis();
+        cal.add(Calendar.DAY_OF_WEEK, -1);
+        long startTime = cal.getTimeInMillis();
+
+
+        req = new DataReadRequest.Builder()
+                .aggregate(ds,DataType.AGGREGATE_STEP_COUNT_DELTA)
+                .bucketByTime(1, TimeUnit.DAYS)
+                .setTimeRange(startTime, endTime, TimeUnit.MILLISECONDS)
+                .build();
+
+        PendingResult<DataReadResult> resultsData = Fitness.HistoryApi.readData(mClient, req);
+
+        resultsData.setResultCallback(new ResultCallback<DataReadResult>() {
+            @Override
+            public void onResult(@NonNull DataReadResult dataReadResult) {
+                uploadData(dataReadResult.getBuckets().get(0).getDataSets().get(0), database);
+            }
+        });
+    }
+
+
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
@@ -124,14 +170,11 @@ public class Records implements GoogleApiClient.ConnectionCallbacks, GoogleApiCl
 
     }
 
-    public void update(){
-        PendingResult<DataReadResult> resultsData = Fitness.HistoryApi.readData(mClient, req);
+    private static Date localDateTimeToDate(LocalDateTime startOfDay) {
+        return Date.from(startOfDay.atZone(ZoneId.systemDefault()).toInstant());
+    }
 
-        resultsData.setResultCallback(new ResultCallback<DataReadResult>() {
-            @Override
-            public void onResult(@NonNull DataReadResult dataReadResult) {
-                showDataSet(dataReadResult.getBuckets().get(0).getDataSets().get(0));
-            }
-        });
+    private static LocalDateTime dateToLocalDateTime(Date date) {
+        return LocalDateTime.ofInstant(Instant.ofEpochMilli(date.getTime()), ZoneId.systemDefault());
     }
 }

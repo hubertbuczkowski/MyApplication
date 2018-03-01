@@ -1,6 +1,5 @@
 package com.example.h_buc.activitytracker;
 
-import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothGatt;
@@ -8,22 +7,18 @@ import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothProfile;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.TextView;
-import android.widget.Toast;
 
-import java.sql.Driver;
 import java.util.Arrays;
 import java.util.Set;
 
 import com.example.h_buc.activitytracker.Helpers.CustomBluetoothProfile;
-import com.example.h_buc.activitytracker.R;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -34,100 +29,39 @@ import com.google.firebase.database.ValueEventListener;
  * Created by h_buc on 13/11/2017.
  */
 
-public class bandManagementBck extends AppCompatActivity {
+public class bandController {
+
+    String bandAddress = null;
 
     BluetoothAdapter bluetoothAdapter;
     BluetoothGatt bluetoothGatt;
     BluetoothDevice bluetoothDevice;
 
     Boolean isListeningHeartRate = false;
-    //TextView txtStatus;
-    //TextView txtMac;
-    //TextView heartRate;
-    FirebaseDatabase db;
-    DatabaseReference dRef ;
-    ImageButton usrBtn, logout;
 
-    protected void onCreate(Bundle savedInstanceState) {
-
-
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_connection);
-        //initialie();
-        getBoundedDevice();
-
-        db = FirebaseDatabase.getInstance();
-        dRef = db.getReference("SimpleMessage");
-        dRef.addValueEventListener(new ValueEventListener() {
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                String value = dataSnapshot.getValue(String.class);
-                //heartRate.setText(value);
-                Log.d("DB SUCC", "Value is: " + value);
-            }
-
-            public void onCancelled(DatabaseError error) {
-                // Failed to read value
-                Log.w("DB WARN", "Failed to read value.", error.toException());
-            }
-        });
-
-        usrBtn = (ImageButton) findViewById(R.id.userSettings);
-        logout = (ImageButton) findViewById(R.id.logout);
-
-        usrBtn.setOnClickListener(new View.OnClickListener()
-        {
-            public void onClick(View view)
-            {
-                userPref();
-            }
-        });
-        logout.setOnClickListener(new View.OnClickListener()
-        {
-            public void onClick(View view)
-            {
-                Logout();
-            }
-        });
-
+    protected void onCreate(Context ctx) {
+        getBoundedDevice(ctx);
     }
 
-    /*void initialie(){
-        //Button shButton = findViewById(R.id.checkHR);
-        //txtStatus = findViewById(R.id.statusReady);
-        //txtMac = findViewById(R.id.addressReady);
-        //heartRate = findViewById(R.id.heartReady);
-
-        shButton.setOnClickListener(new View.OnClickListener()
-        {
-            public void onClick(View view)
-            {
-                startScanHeartRate();
-            }
-        });
-    }*/
-
-    void startConnecting(String addressEx) {
-
-        String address = addressEx;
-        bluetoothDevice = bluetoothAdapter.getRemoteDevice(address);
-        bluetoothGatt = bluetoothDevice.connectGatt(this, true, bluetoothGattCallback);
-
+    void startConnecting(Context ctx)
+    {
+        if(bandAddress != null) {
+            String address = this.bandAddress;
+            bluetoothDevice = bluetoothAdapter.getRemoteDevice(address);
+            bluetoothGatt = bluetoothDevice.connectGatt(ctx, true, bluetoothGattCallback);
+        }
     }
 
-    void getBoundedDevice() {
+    void getBoundedDevice(Context ctx) {
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         Set<BluetoothDevice> boundedDevice = bluetoothAdapter.getBondedDevices();
         for (BluetoothDevice bd : boundedDevice) {
             if (bd.getName().contains("MI Band 2")) {
                 //txtMac.setText(bd.getAddress());
-                startConnecting(bd.getAddress());
+                this.bandAddress = bd.getAddress();
+                startConnecting(ctx);
             }
         }
-    }
-
-    void sendData(String results){
-        dRef = db.getReference("SimpleMessage");
-        dRef.setValue(results);
     }
 
     void startScanHeartRate() {
@@ -156,22 +90,6 @@ public class bandManagementBck extends AppCompatActivity {
         bluetoothGatt.disconnect();
         //txtStatus.setText("Disconnected");
     }
-
-    void userPref()
-    {
-        Intent intent = new Intent(bandManagementBck.this, userPref.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        startActivity(intent);
-    }
-
-    void Logout(){
-        SaveSharedPreference.clear(getApplicationContext());
-        Intent intent = new Intent(bandManagementBck.this, Login.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        startActivity(intent);
-    }
-
-
 
     final BluetoothGattCallback bluetoothGattCallback = new BluetoothGattCallback() {
 
