@@ -42,7 +42,7 @@ public class BackgroundService extends IntentService {
     protected void onHandleIntent(@Nullable Intent intent) {
         String dataString = intent.getDataString();
 
-        rc.Records(getApplication());
+        rc.Records(getApplicationContext());
 
         java.util.Timer t = new java.util.Timer();
         t.schedule(new TimerTask() {
@@ -52,7 +52,7 @@ public class BackgroundService extends IntentService {
             public void run() {
                 showNoti();
             }
-        }, 10000, 5000*60);
+        }, 5000, 1000*60);
     }
 
     public void showNoti(){
@@ -71,18 +71,6 @@ public class BackgroundService extends IntentService {
             }
         });
 
-        /*NotificationCompat.Builder mBuilder =
-                new NotificationCompat.Builder(this)
-                        .setSmallIcon(R.drawable.design_password_eye)
-                        .setContentTitle("My notification")
-                        .setContentText("Hello World!");
-
-
-
-        NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-
-
-        NotificationManager.notify().mNotificationManager.notify(001, mBuilder.build());*/
     }
 
 

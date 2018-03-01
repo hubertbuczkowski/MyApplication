@@ -41,10 +41,14 @@ public class Records implements GoogleApiClient.ConnectionCallbacks, GoogleApiCl
     DataSource ds;
     DataReadRequest req;
 
+    bandController bd = new bandController();
+
     public void Records(Context ctx){
 
         this.steps = "0";
         this.heartRate = "65";
+
+        bd.getBoundedDevice(ctx);
 
         setClients(ctx);
         update();
@@ -91,16 +95,21 @@ public class Records implements GoogleApiClient.ConnectionCallbacks, GoogleApiCl
         this.steps = f.toString();
     }
 
-    private void uploadData(DataSet dataSet, DatabaseReference database){
+    private void uploadData(DataSet dataSet, final DatabaseReference database){
         Value f =  dataSet.getDataPoints().get(0).getValue(dataSet.getDataPoints().get(0).getDataType().getFields().get(0));
         this.steps = f.toString();
 
         Date date = new Date();
-        String current_date = new SimpleDateFormat("ddMMyyyy").format(date);
-        String current_time = new SimpleDateFormat("HH:mm").format(date);
+        final String current_date = new SimpleDateFormat("ddMMyyyy").format(date);
+        final String current_time = new SimpleDateFormat("HH:mm").format(date);
 
         database.child("Records").child(current_date).child(current_time).child("Steps").setValue(this.steps);
-        database.child("Records").child(current_date).child(current_time).child("Heart Rate").setValue(this.heartRate);
+
+        new Thread(new Runnable() {
+            public void run() {
+                database.child("Records").child(current_date).child(current_time).child("Heart Rate").setValue(bd.startScanHeartRate());
+            }
+        }).start();
     }
 
 

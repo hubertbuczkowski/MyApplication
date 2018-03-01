@@ -6,6 +6,7 @@ import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattDescriptor;
+import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothProfile;
 import android.content.Context;
 import android.content.Intent;
@@ -15,8 +16,10 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 
+import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Set;
+import java.util.UUID;
 
 import com.example.h_buc.activitytracker.Helpers.CustomBluetoothProfile;
 import com.google.firebase.database.DataSnapshot;
@@ -32,48 +35,54 @@ import com.google.firebase.database.ValueEventListener;
 public class bandController {
 
     String bandAddress = null;
+    String lastHeartRate;
+    int readingStatus;
 
     BluetoothAdapter bluetoothAdapter;
     BluetoothGatt bluetoothGatt;
     BluetoothDevice bluetoothDevice;
+    BluetoothGattService mBluetoothGattService = null;
 
     Boolean isListeningHeartRate = false;
 
-    protected void onCreate(Context ctx) {
-        getBoundedDevice(ctx);
-    }
-
-    void startConnecting(Context ctx)
-    {
-        if(bandAddress != null) {
-            String address = this.bandAddress;
-            bluetoothDevice = bluetoothAdapter.getRemoteDevice(address);
-            bluetoothGatt = bluetoothDevice.connectGatt(ctx, true, bluetoothGattCallback);
-        }
-    }
-
-    void getBoundedDevice(Context ctx) {
+    public void getBoundedDevice(Context ctx) {
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         Set<BluetoothDevice> boundedDevice = bluetoothAdapter.getBondedDevices();
         for (BluetoothDevice bd : boundedDevice) {
             if (bd.getName().contains("MI Band 2")) {
                 //txtMac.setText(bd.getAddress());
                 this.bandAddress = bd.getAddress();
-                startConnecting(ctx);
+                String address = bd.getAddress();
+                bluetoothDevice = bluetoothAdapter.getRemoteDevice(address);
+                bluetoothGatt = bluetoothDevice.connectGatt(ctx, true, bluetoothGattCallback);
             }
         }
     }
 
-    void startScanHeartRate() {
-        BluetoothGattCharacteristic bchar = bluetoothGatt.getService(CustomBluetoothProfile.HeartRate.service)
-                .getCharacteristic(CustomBluetoothProfile.HeartRate.controlCharacteristic);
+    public String startScanHeartRate() {
+        while(isListeningHeartRate == false){}
+        BluetoothGattCharacteristic bchar = mBluetoothGattService.getCharacteristic(CustomBluetoothProfile.HeartRate.controlCharacteristic);
         bchar.setValue(new byte[]{21, 2, 1});
+        this.readingStatus = 0;
         bluetoothGatt.writeCharacteristic(bchar);
+
+        System.out.println("beforeLoop");
+        while(this.readingStatus == 0)
+        {
+        }
+        System.out.println("afterLoop");
+        return this.lastHeartRate;
     }
 
-    void listenHeartRate() {
-        BluetoothGattCharacteristic bchar = bluetoothGatt.getService(CustomBluetoothProfile.HeartRate.service)
-                .getCharacteristic(CustomBluetoothProfile.HeartRate.measurementCharacteristic);
+    public void updateHR(String hr){
+        this.lastHeartRate = hr;
+        this.readingStatus = 1;
+        System.out.println(hr + " updated");
+    }
+
+    public void listenHeartRate(BluetoothGattService serv) {
+        mBluetoothGattService = serv;
+        BluetoothGattCharacteristic bchar = serv.getCharacteristic(CustomBluetoothProfile.HeartRate.measurementCharacteristic);
         bluetoothGatt.setCharacteristicNotification(bchar, true);
         BluetoothGattDescriptor descriptor = bchar.getDescriptor(CustomBluetoothProfile.HeartRate.descriptor);
         descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
@@ -81,17 +90,15 @@ public class bandController {
         isListeningHeartRate = true;
     }
 
-    void stateConnected() {
+    public void stateConnected() {
         bluetoothGatt.discoverServices();
-        //txtStatus.setText("Connected");
     }
 
-    void stateDisconnected() {
+    public void stateDisconnected() {
         bluetoothGatt.disconnect();
-        //txtStatus.setText("Disconnected");
     }
 
-    final BluetoothGattCallback bluetoothGattCallback = new BluetoothGattCallback() {
+    public final BluetoothGattCallback bluetoothGattCallback = new BluetoothGattCallback() {
 
         @Override
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
@@ -107,27 +114,33 @@ public class bandController {
 
         @Override
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
-            super.onServicesDiscovered(gatt, status);
-            listenHeartRate();
+            if (status == BluetoothGatt.GATT_SUCCESS) {
+                listenHeartRate(bluetoothGatt.getService(CustomBluetoothProfile.HeartRate.service));
+            }
+
         }
 
         @Override
         public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
             super.onCharacteristicRead(gatt, characteristic, status);
             byte[] data = characteristic.getValue();
-            //tx.setText(Arrays.toString(data));
+            System.out.println("Characteristic Read");
+            updateHR(Array.get(data, 1).toString());
         }
 
         @Override
         public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
             super.onCharacteristicWrite(gatt, characteristic, status);
+            System.out.println("Characteristic Write");
+            byte[] data = characteristic.getValue();
         }
 
         @Override
         public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
             super.onCharacteristicChanged(gatt, characteristic);
+            System.out.println("Characteristic Change");
             byte[] data = characteristic.getValue();
-            sendData(Arrays.toString(data));
+            updateHR(Array.get(data, 1).toString());
         }
 
         @Override
