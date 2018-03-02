@@ -30,11 +30,34 @@ import java.util.TimerTask;
  * Created by h_buc on 27/02/2018.
  */
 
-public class BackgroundService extends IntentService {
+public class BackgroundService extends Service {
 
     Records rc = new Records();
 
-    public BackgroundService() {
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        // TODO do something useful
+        return START_STICKY;
+    }
+
+    @Override
+    public IBinder onBind(Intent intent) {
+        // TODO for communication return IBinder implementation
+        return null;
+    }
+
+    public void onCreate(){
+        rc.Records(getApplicationContext());
+
+        java.util.Timer t = new java.util.Timer();
+        t.schedule(new TimerTask() {
+            public void run() {
+                showNoti();
+            }
+        }, 5000, 5000*60);
+    }
+
+    /*public BackgroundService() {
         super(BackgroundService.class.getName());
     }
 
@@ -50,7 +73,7 @@ public class BackgroundService extends IntentService {
                 showNoti();
             }
         }, 5000, 1000*60);
-    }
+    }*/
 
     public void showNoti(){
         Handler handler = new Handler(Looper.getMainLooper());
