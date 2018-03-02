@@ -12,6 +12,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.BottomSheetBehavior;
+import android.support.design.widget.BottomSheetDialogFragment;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -96,6 +98,8 @@ public class bandManagement extends AppCompatActivity implements GoogleApiClient
 
     Records rc;
 
+    private BottomSheetBehavior mBottomSheetBehavior;
+    BottomSheetDialogFragment bottomSheetDialogFragment;
 
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -104,6 +108,12 @@ public class bandManagement extends AppCompatActivity implements GoogleApiClient
         setContentView(R.layout.activity_connection);
         //initialie();
         //getBoundedDevice();
+
+        bottomSheetDialogFragment = new FoodDiaryFragment();
+
+
+
+
 
         currentUser = mAuth.getCurrentUser();
         DatabaseReference database = FirebaseDatabase.getInstance().getReference(currentUser.getUid());
@@ -201,7 +211,8 @@ public class bandManagement extends AppCompatActivity implements GoogleApiClient
         {
             public void onClick(View view)
             {
-                addFood();
+                //addFood();
+                bottomSheetDialogFragment.show(getSupportFragmentManager(), bottomSheetDialogFragment.getTag());
             }
         });
 
@@ -217,12 +228,14 @@ public class bandManagement extends AppCompatActivity implements GoogleApiClient
             public void onClick(View view)
             {
                 Logout();
+
+
             }
         });
 
         Intent i = new Intent(this, BackgroundService.class);
 
-        startService(i);
+        getApplicationContext().startService(i);
     }
 
 

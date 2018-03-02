@@ -6,8 +6,11 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
+import android.os.Binder;
 import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
@@ -36,13 +39,11 @@ public class BackgroundService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        // TODO do something useful
         return START_STICKY;
     }
 
     @Override
     public IBinder onBind(Intent intent) {
-        // TODO for communication return IBinder implementation
         return null;
     }
 
@@ -56,24 +57,6 @@ public class BackgroundService extends Service {
             }
         }, 5000, 5000*60);
     }
-
-    /*public BackgroundService() {
-        super(BackgroundService.class.getName());
-    }
-
-    @Override
-    protected void onHandleIntent(@Nullable Intent intent) {
-        String dataString = intent.getDataString();
-
-        rc.Records(getApplicationContext());
-
-        java.util.Timer t = new java.util.Timer();
-        t.schedule(new TimerTask() {
-            public void run() {
-                showNoti();
-            }
-        }, 5000, 1000*60);
-    }*/
 
     public void showNoti(){
         Handler handler = new Handler(Looper.getMainLooper());
@@ -92,6 +75,5 @@ public class BackgroundService extends Service {
         });
 
     }
-
 
 }
