@@ -7,9 +7,12 @@ import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothGattService;
+import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -36,12 +39,13 @@ public class bandController {
 
     String bandAddress = null;
     String lastHeartRate;
-    int readingStatus;
+    public volatile int readingStatus;
 
     BluetoothAdapter bluetoothAdapter;
     BluetoothGatt bluetoothGatt;
     BluetoothDevice bluetoothDevice;
     BluetoothGattService mBluetoothGattService = null;
+    Context appContext = null;
 
     Boolean isListeningHeartRate = false;
 
@@ -52,22 +56,27 @@ public class bandController {
             if (bd.getName().contains("MI Band 2")) {
                 //txtMac.setText(bd.getAddress());
                 this.bandAddress = bd.getAddress();
-                String address = bd.getAddress();
-                bluetoothDevice = bluetoothAdapter.getRemoteDevice(address);
-                bluetoothGatt = bluetoothDevice.connectGatt(ctx, true, bluetoothGattCallback);
+                this.appContext = ctx;
+
+                startConnecting();
             }
         }
+    }
+
+    public void startConnecting(){
+        bluetoothDevice = bluetoothAdapter.getRemoteDevice(this.bandAddress);
+        bluetoothGatt = bluetoothDevice.connectGatt(this.appContext, true, bluetoothGattCallback);
     }
 
     public String startScanHeartRate() {
         while(isListeningHeartRate == false){}
         BluetoothGattCharacteristic bchar = mBluetoothGattService.getCharacteristic(CustomBluetoothProfile.HeartRate.controlCharacteristic);
         bchar.setValue(new byte[]{21, 2, 1});
-        this.readingStatus = 0;
+        bandController.this.readingStatus = 0;
         bluetoothGatt.writeCharacteristic(bchar);
 
         System.out.println("beforeLoop");
-        while(this.readingStatus == 0)
+        while(bandController.this.readingStatus == 0)
         {
         }
         System.out.println("afterLoop");
@@ -76,7 +85,7 @@ public class bandController {
 
     public void updateHR(String hr){
         this.lastHeartRate = hr;
-        this.readingStatus = 1;
+        bandController.this.readingStatus = 1;
         System.out.println(hr + " updated");
     }
 
@@ -98,15 +107,20 @@ public class bandController {
         bluetoothGatt.disconnect();
     }
 
+
     public final BluetoothGattCallback bluetoothGattCallback = new BluetoothGattCallback() {
 
         @Override
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
             super.onConnectionStateChange(gatt, status, newState);
 
+            System.out.println("gatt changeds");
+
             if (newState == BluetoothProfile.STATE_CONNECTED) {
+                System.out.println("gatt connected");
                 stateConnected();
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
+                System.out.println("gatt disconnected");
                 stateDisconnected();
             }
 
@@ -166,6 +180,7 @@ public class bandController {
         @Override
         public void onMtuChanged(BluetoothGatt gatt, int mtu, int status) {
             super.onMtuChanged(gatt, mtu, status);
+            System.out.println("mtu changeds");
         }
 
     };

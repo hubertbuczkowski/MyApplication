@@ -91,15 +91,20 @@ public class Records implements GoogleApiClient.ConnectionCallbacks, GoogleApiCl
 
 
     private void showDataSet(DataSet dataSet) {
-        Value f =  dataSet.getDataPoints().get(0).getValue(dataSet.getDataPoints().get(0).getDataType().getFields().get(0));
-        this.steps = f.toString();
+        if(!dataSet.isEmpty()) {
+            Value f = dataSet.getDataPoints().get(0).getValue(dataSet.getDataPoints().get(0).getDataType().getFields().get(0));
+            this.steps = f.toString();
+        }
+        else
+        {
+            this.steps = "0";
+        }
     }
 
-    private void uploadData(DataSet dataSet, final DatabaseReference database){
-        Value f =  dataSet.getDataPoints().get(0).getValue(dataSet.getDataPoints().get(0).getDataType().getFields().get(0));
-        this.steps = f.toString();
+    private void uploadData(DataSet dataSet, final DatabaseReference database, final Context ctx){
+        showDataSet(dataSet);
 
-        Date date = new Date();
+        final Date date = new Date();
         final String current_date = new SimpleDateFormat("ddMMyyyy").format(date);
         final String current_time = new SimpleDateFormat("HH:mm").format(date);
 
@@ -108,6 +113,7 @@ public class Records implements GoogleApiClient.ConnectionCallbacks, GoogleApiCl
         new Thread(new Runnable() {
             public void run() {
                 database.child("Records").child(current_date).child(current_time).child("Heart Rate").setValue(bd.startScanHeartRate());
+                System.out.println("tread eecuted");
             }
         }).start();
     }
@@ -137,7 +143,7 @@ public class Records implements GoogleApiClient.ConnectionCallbacks, GoogleApiCl
         });
     }
 
-    public void update(final DatabaseReference database){
+    public void update(final DatabaseReference database, final Context ctx){
         Calendar cal = Calendar.getInstance();
         Date now = new Date();
         cal.setTime(getEndOfDay(now));
@@ -157,7 +163,7 @@ public class Records implements GoogleApiClient.ConnectionCallbacks, GoogleApiCl
         resultsData.setResultCallback(new ResultCallback<DataReadResult>() {
             @Override
             public void onResult(@NonNull DataReadResult dataReadResult) {
-                uploadData(dataReadResult.getBuckets().get(0).getDataSets().get(0), database);
+                uploadData(dataReadResult.getBuckets().get(0).getDataSets().get(0), database, ctx);
             }
         });
     }

@@ -270,8 +270,14 @@ public class bandManagement extends AppCompatActivity implements GoogleApiClient
 
     }
     private void showDataSet(DataSet dataSet) {
-        Value f =  dataSet.getDataPoints().get(0).getValue(dataSet.getDataPoints().get(0).getDataType().getFields().get(0));
-        stepAmountFromGoogle = f.toString();
+        if(!dataSet.isEmpty()) {
+            Value f = dataSet.getDataPoints().get(0).getValue(dataSet.getDataPoints().get(0).getDataType().getFields().get(0));
+            stepAmountFromGoogle = f.toString();
+        }
+        else
+        {
+            stepAmountFromGoogle = "0";
+        }
         updateCals();
 
     }

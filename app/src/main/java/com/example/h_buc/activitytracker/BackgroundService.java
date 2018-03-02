@@ -46,9 +46,6 @@ public class BackgroundService extends IntentService {
 
         java.util.Timer t = new java.util.Timer();
         t.schedule(new TimerTask() {
-
-
-            @Override
             public void run() {
                 showNoti();
             }
@@ -65,7 +62,7 @@ public class BackgroundService extends IntentService {
                 FirebaseUser currentUser = mAuth.getCurrentUser();
                 DatabaseReference database = FirebaseDatabase.getInstance().getReference(currentUser.getUid());
 
-                rc.update(database);
+                rc.update(database, getApplicationContext());
 
                 Toast.makeText(getApplicationContext(), "recorded", Toast.LENGTH_SHORT).show();
             }
