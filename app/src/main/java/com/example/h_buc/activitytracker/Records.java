@@ -41,14 +41,14 @@ public class Records implements GoogleApiClient.ConnectionCallbacks, GoogleApiCl
     DataSource ds;
     DataReadRequest req;
 
-    bandController bd = new bandController();
+    //bandController bd = new bandController();
 
     public void Records(Context ctx){
 
         this.steps = "0";
         this.heartRate = "65";
 
-        bd.getBoundedDevice(ctx);
+        //bd.getBoundedDevice(ctx);
 
         setClients(ctx);
         update();
@@ -112,8 +112,11 @@ public class Records implements GoogleApiClient.ConnectionCallbacks, GoogleApiCl
 
         new Thread(new Runnable() {
             public void run() {
-                database.child("Records").child(current_date).child(current_time).child("Heart Rate").setValue(bd.startScanHeartRate());
+                bandController bd = new bandController();
+                bd.getBoundedDevice(ctx);
+                database.child("Records").child(current_date).child(current_time).child("Heart Rate").setValue(bd.startScanHeartRate(ctx));
                 System.out.println("tread eecuted");
+                bd = null;
             }
         }).start();
     }

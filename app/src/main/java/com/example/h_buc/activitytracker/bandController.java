@@ -37,17 +37,19 @@ import com.google.firebase.database.ValueEventListener;
 
 public class bandController {
 
-    String bandAddress = null;
-    String lastHeartRate;
+    volatile String bandAddress = null;
+    volatile String lastHeartRate;
     public volatile int readingStatus;
+    public volatile int isConnected = 0;
+    public volatile boolean isDescriptior = false;
 
-    BluetoothAdapter bluetoothAdapter;
-    BluetoothGatt bluetoothGatt;
-    BluetoothDevice bluetoothDevice;
-    BluetoothGattService mBluetoothGattService = null;
-    Context appContext = null;
+    volatile BluetoothAdapter bluetoothAdapter;
+    volatile BluetoothGatt bluetoothGatt;
+    volatile BluetoothDevice bluetoothDevice;
+    volatile BluetoothGattService mBluetoothGattService = null;
+    volatile Context appContext = null;
 
-    Boolean isListeningHeartRate = false;
+    volatile Boolean isListeningHeartRate = false;
 
     public void getBoundedDevice(Context ctx) {
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -57,8 +59,7 @@ public class bandController {
                 //txtMac.setText(bd.getAddress());
                 this.bandAddress = bd.getAddress();
                 this.appContext = ctx;
-
-                startConnecting();
+                //startConnecting();
             }
         }
     }
@@ -66,6 +67,32 @@ public class bandController {
     public void startConnecting(){
         bluetoothDevice = bluetoothAdapter.getRemoteDevice(this.bandAddress);
         bluetoothGatt = bluetoothDevice.connectGatt(this.appContext, true, bluetoothGattCallback);
+    }
+
+
+    public String startScanHeartRate(Context ctx) {
+        isListeningHeartRate = false;
+        isConnected = 0;
+        isDescriptior = false;
+        while(this.bandAddress == null){}
+        startConnecting();
+        while(isListeningHeartRate == false || isConnected == 0 || isDescriptior == false){
+            if(isConnected == 2)
+            {
+                return "-1";
+            }
+        }
+        BluetoothGattCharacteristic bchar = mBluetoothGattService.getCharacteristic(CustomBluetoothProfile.HeartRate.controlCharacteristic);
+        bchar.setValue(new byte[]{21, 2, 1});
+        bandController.this.readingStatus = 0;
+        bluetoothGatt.writeCharacteristic(bchar);
+
+        System.out.println("beforeLoop");
+        while(bandController.this.readingStatus == 0)
+        {
+        }
+        System.out.println("afterLoop");
+        return this.lastHeartRate;
     }
 
     public String startScanHeartRate() {
@@ -130,6 +157,11 @@ public class bandController {
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 listenHeartRate(bluetoothGatt.getService(CustomBluetoothProfile.HeartRate.service));
+                isConnected = 1;
+            }
+            else
+            {
+                isConnected = 2;
             }
 
         }
@@ -165,6 +197,7 @@ public class bandController {
         @Override
         public void onDescriptorWrite(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
             super.onDescriptorWrite(gatt, descriptor, status);
+            isDescriptior = true;
         }
 
         @Override
