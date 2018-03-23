@@ -50,152 +50,198 @@
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent" />
 
-        <ScrollView
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="50dp"
+        android:layout_marginTop="50dp"
+        app:layout_constraintBottom_toTopOf="@+id/toolbar4"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar3"
+        app:layout_constraintVertical_bias="0.009">
+
+        <android.support.constraint.ConstraintLayout
+            android:id="@+id/cs1"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginBottom="50dp"
-            android:layout_marginTop="50dp"
-            app:layout_constraintBottom_toTopOf="@+id/toolbar4"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/toolbar3"
-            app:layout_constraintVertical_bias="0.009">
+            android:layout_height="wrap_content">
 
-            <android.support.constraint.ConstraintLayout
-                android:id="@+id/cs1"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+            <at.grabner.circleprogress.CircleProgressView
+                android:id="@+id/circleView"
+                android:layout_width="258dp"
+                android:layout_height="186dp"
+                android:layout_marginTop="50dp"
+                CircleProgressView:cpv_autoTextSize="true"
+                CircleProgressView:cpv_barColor="@color/primary"
+                CircleProgressView:cpv_barWidth="35dp"
+                CircleProgressView:cpv_innerContourSize="0dp"
+                CircleProgressView:cpv_maxValue="2500"
+                CircleProgressView:cpv_outerContourSize="0dp"
+                CircleProgressView:cpv_rimColor="@color/primary_light"
+                CircleProgressView:cpv_rimWidth="35dp"
+                CircleProgressView:cpv_seekMode="true"
+                CircleProgressView:cpv_showUnit="true"
+                CircleProgressView:cpv_spinColor="@color/primary"
+                CircleProgressView:cpv_textColor="@color/primary_dark"
+                CircleProgressView:cpv_textScale="1"
+                CircleProgressView:cpv_unit="Calories"
+                CircleProgressView:cpv_unitColor="@color/primary_light"
+                CircleProgressView:cpv_unitPosition="bottom"
+                CircleProgressView:cpv_unitScale="1"
+                CircleProgressView:cpv_value="725"
+                CircleProgressView:layout_constraintHorizontal_bias="0.497"
+                CircleProgressView:layout_constraintLeft_toLeftOf="parent"
+                CircleProgressView:layout_constraintRight_toRightOf="parent"
+                CircleProgressView:layout_constraintTop_toBottomOf="@+id/textView6" />
 
-                <at.grabner.circleprogress.CircleProgressView
-                    android:id="@+id/circleView"
-                    android:layout_width="258dp"
-                    android:layout_height="186dp"
-                    android:layout_marginTop="32dp"
-                    CircleProgressView:cpv_autoTextSize="true"
-                    CircleProgressView:cpv_barColor="@color/primary"
-                    CircleProgressView:cpv_barWidth="35dp"
-                    CircleProgressView:cpv_innerContourSize="0dp"
-                    CircleProgressView:cpv_maxValue="2500"
-                    CircleProgressView:cpv_outerContourSize="0dp"
-                    CircleProgressView:cpv_rimColor="@color/primary_light"
-                    CircleProgressView:cpv_rimWidth="35dp"
-                    CircleProgressView:cpv_seekMode="true"
-                    CircleProgressView:cpv_showUnit="true"
-                    CircleProgressView:cpv_spinColor="@color/primary"
-                    CircleProgressView:cpv_textColor="@color/primary_dark"
-                    CircleProgressView:cpv_textScale="1"
-                    CircleProgressView:cpv_unit="Calories"
-                    CircleProgressView:cpv_unitColor="@color/primary_light"
-                    CircleProgressView:cpv_unitPosition="bottom"
-                    CircleProgressView:cpv_unitScale="1"
-                    CircleProgressView:cpv_value="725"
-                    CircleProgressView:layout_constraintHorizontal_bias="0.497"
-                    CircleProgressView:layout_constraintLeft_toLeftOf="parent"
-                    CircleProgressView:layout_constraintRight_toRightOf="parent"
-                    CircleProgressView:layout_constraintTop_toBottomOf="@+id/textView6" />
+            <android.support.design.widget.FloatingActionButton
+                android:id="@+id/addButton"
+                android:layout_width="56dp"
+                android:layout_height="83dp"
+                android:layout_marginBottom="24dp"
+                android:layout_marginRight="40dp"
+                android:layout_marginStart="288dp"
+                android:layout_marginTop="750dp"
+                android:clickable="true"
+                app:backgroundTint="@color/colorAccent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.92"
+                app:srcCompat="@drawable/ic_add_circle_outline_black_24dp" />
 
-                <android.support.design.widget.FloatingActionButton
-                    android:id="@+id/addButton"
-                    android:layout_width="56dp"
-                    android:layout_height="83dp"
-                    android:layout_marginBottom="24dp"
-                    android:layout_marginRight="40dp"
-                    android:layout_marginStart="288dp"
-                    android:layout_marginTop="750dp"
-                    android:clickable="true"
-                    app:backgroundTint="@color/colorAccent"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintVertical_bias="0.92"
-                    app:srcCompat="@drawable/ic_add_circle_outline_black_24dp" />
+            <TextView
+                android:id="@+id/steps"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="32dp"
+                CircleProgressView:layout_constraintEnd_toEndOf="parent"
+                CircleProgressView:layout_constraintHorizontal_bias="0.498"
+                CircleProgressView:layout_constraintLeft_toLeftOf="parent"
+                CircleProgressView:layout_constraintRight_toRightOf="parent"
+                CircleProgressView:layout_constraintStart_toStartOf="parent"
+                CircleProgressView:layout_constraintTop_toBottomOf="@+id/circleView" />
 
-                <TextView
-                    android:id="@+id/steps"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginTop="32dp"
-                    CircleProgressView:layout_constraintEnd_toEndOf="parent"
-                    CircleProgressView:layout_constraintStart_toStartOf="parent"
-                    CircleProgressView:layout_constraintTop_toBottomOf="@+id/circleView" />
+            <TextView
+                android:id="@+id/bodyCals"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="32dp"
+                android:layout_marginTop="32dp"
+                CircleProgressView:layout_constraintEnd_toStartOf="@+id/textView4"
+                CircleProgressView:layout_constraintStart_toStartOf="parent"
+                CircleProgressView:layout_constraintTop_toTopOf="parent" />
 
-                <TextView
-                    android:id="@+id/bodyCals"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="32dp"
-                    android:layout_marginTop="32dp"
-                    CircleProgressView:layout_constraintEnd_toStartOf="@+id/textView4"
-                    CircleProgressView:layout_constraintStart_toStartOf="parent"
-                    CircleProgressView:layout_constraintTop_toTopOf="parent" />
+            <TextView
+                android:id="@+id/textView4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="32dp"
+                android:text="+"
+                CircleProgressView:layout_constraintEnd_toStartOf="@+id/exerciseCals"
+                CircleProgressView:layout_constraintStart_toEndOf="@+id/bodyCals"
+                CircleProgressView:layout_constraintTop_toTopOf="parent" />
 
-                <TextView
-                    android:id="@+id/textView4"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="32dp"
-                    android:text="+"
-                    CircleProgressView:layout_constraintEnd_toStartOf="@+id/exerciseCals"
-                    CircleProgressView:layout_constraintStart_toEndOf="@+id/bodyCals"
-                    CircleProgressView:layout_constraintTop_toTopOf="parent" />
+            <TextView
+                android:id="@+id/exerciseCals"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="32dp"
+                CircleProgressView:layout_constraintEnd_toStartOf="@+id/textView6"
+                CircleProgressView:layout_constraintStart_toEndOf="@+id/textView4"
+                CircleProgressView:layout_constraintTop_toTopOf="parent" />
 
-                <TextView
-                    android:id="@+id/exerciseCals"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="32dp"
-                    CircleProgressView:layout_constraintEnd_toStartOf="@+id/textView6"
-                    CircleProgressView:layout_constraintStart_toEndOf="@+id/textView4"
-                    CircleProgressView:layout_constraintTop_toTopOf="parent" />
+            <TextView
+                android:id="@+id/textView6"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="32dp"
+                android:text="-"
+                CircleProgressView:layout_constraintEnd_toStartOf="@+id/Consumed"
+                CircleProgressView:layout_constraintStart_toEndOf="@+id/exerciseCals"
+                CircleProgressView:layout_constraintTop_toTopOf="parent" />
 
-                <TextView
-                    android:id="@+id/textView6"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="32dp"
-                    android:text="-"
-                    CircleProgressView:layout_constraintEnd_toStartOf="@+id/Consumed"
-                    CircleProgressView:layout_constraintStart_toEndOf="@+id/exerciseCals"
-                    CircleProgressView:layout_constraintTop_toTopOf="parent" />
+            <TextView
+                android:id="@+id/Consumed"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="32dp"
+                CircleProgressView:layout_constraintEnd_toStartOf="@+id/textView8"
+                CircleProgressView:layout_constraintStart_toEndOf="@+id/textView6"
+                CircleProgressView:layout_constraintTop_toTopOf="parent" />
 
-                <TextView
-                    android:id="@+id/Consumed"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="32dp"
-                    CircleProgressView:layout_constraintEnd_toStartOf="@+id/textView8"
-                    CircleProgressView:layout_constraintStart_toEndOf="@+id/textView6"
-                    CircleProgressView:layout_constraintTop_toTopOf="parent" />
+            <TextView
+                android:id="@+id/textView8"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="32dp"
+                android:text="="
+                CircleProgressView:layout_constraintEnd_toStartOf="@+id/leftCals"
+                CircleProgressView:layout_constraintStart_toEndOf="@+id/Consumed"
+                CircleProgressView:layout_constraintTop_toTopOf="parent" />
 
-                <TextView
-                    android:id="@+id/textView8"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="32dp"
-                    android:text="="
-                    CircleProgressView:layout_constraintEnd_toStartOf="@+id/leftCals"
-                    CircleProgressView:layout_constraintStart_toEndOf="@+id/Consumed"
-                    CircleProgressView:layout_constraintTop_toTopOf="parent" />
+            <TextView
+                android:id="@+id/leftCals"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="32dp"
+                android:layout_marginTop="32dp"
+                CircleProgressView:layout_constraintEnd_toEndOf="parent"
+                CircleProgressView:layout_constraintStart_toEndOf="@+id/textView8"
+                CircleProgressView:layout_constraintTop_toTopOf="parent" />
 
-                <TextView
-                    android:id="@+id/leftCals"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="32dp"
-                    android:layout_marginTop="32dp"
-                    CircleProgressView:layout_constraintEnd_toEndOf="parent"
-                    CircleProgressView:layout_constraintStart_toEndOf="@+id/textView8"
-                    CircleProgressView:layout_constraintTop_toTopOf="parent" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Basic Demand"
+                CircleProgressView:layout_constraintEnd_toStartOf="@+id/textView4"
+                CircleProgressView:layout_constraintStart_toStartOf="parent"
+                CircleProgressView:layout_constraintTop_toBottomOf="@+id/bodyCals" />
 
-            </android.support.constraint.ConstraintLayout>
 
-        </ScrollView>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Burned"
+                CircleProgressView:layout_constraintEnd_toStartOf="@+id/textView6"
+                CircleProgressView:layout_constraintHorizontal_bias="0.473"
+                CircleProgressView:layout_constraintStart_toEndOf="@+id/textView4"
+                CircleProgressView:layout_constraintTop_toBottomOf="@+id/exerciseCals" />
+
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Consumed"
+                CircleProgressView:layout_constraintEnd_toStartOf="@+id/textView8"
+                CircleProgressView:layout_constraintHorizontal_bias="0.533"
+                CircleProgressView:layout_constraintStart_toEndOf="@+id/textView6"
+                CircleProgressView:layout_constraintTop_toBottomOf="@+id/Consumed" />
+
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="32dp"
+                android:layout_marginRight="16dp"
+                android:layout_marginTop="16dp"
+                android:text="Calories left"
+                CircleProgressView:layout_constraintEnd_toEndOf="parent"
+                CircleProgressView:layout_constraintHorizontal_bias="1.0"
+                CircleProgressView:layout_constraintRight_toRightOf="parent"
+                CircleProgressView:layout_constraintStart_toEndOf="@+id/textView8"
+                CircleProgressView:layout_constraintTop_toBottomOf="@+id/leftCals" />
+
+        </android.support.constraint.ConstraintLayout>
+
+    </ScrollView>
 
     </android.support.constraint.ConstraintLayout>
 
