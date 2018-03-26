@@ -16,17 +16,20 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
-import com.github.mikephil.charting.charts.PieChart;
-import com.github.mikephil.charting.components.Legend;
-import com.github.mikephil.charting.data.Entry;
-import com.github.mikephil.charting.data.PieData;
-import com.github.mikephil.charting.data.PieDataSet;
-import com.github.mikephil.charting.data.PieEntry;
-import com.github.mikephil.charting.highlight.Highlight;
-import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
+//import com.github.mikephil.charting.charts.PieChart;
+//import com.github.mikephil.charting.components.Legend;
+//import com.github.mikephil.charting.data.Entry;
+//import com.github.mikephil.charting.data.PieData;
+//import com.github.mikephil.charting.data.PieDataSet;
+//import com.github.mikephil.charting.data.PieEntry;
+//import com.github.mikephil.charting.highlight.Highlight;
+//import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
 
+import org.eazegraph.lib.charts.PieChart;
+import org.eazegraph.lib.models.PieModel;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -52,14 +55,15 @@ public class searchFood extends AppCompatActivity {
 
     private float[] yData = {25.3f, 10.6f, 66.76f, 44.32f, 46.01f, 16.89f, 23.9f};
     private String[] xData = {"Mitch", "Jessica" , "Mohammad" , "Kelsey", "Sam", "Robert", "Ashley"};
-    PieChart pieChart;
+//    PieChart pieChart;
+    PieChart mPieChart;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search_food);
 
         String[] words=new String[] {
-                "word1", "word2", "word3", "word4", "word5"
+                "Chicken", "Chievs", "Porrige", "word4", "word5"
         };
 
         final AutoCompleteTextView autoSearch =  this.findViewById(R.id.searchAuto);
@@ -79,6 +83,14 @@ public class searchFood extends AppCompatActivity {
             }
         });
 
+        searchResList.add("Porrige");
+        searchResList.add("Egg");
+        searchResList.add("Bread");
+        searchResList.add("Butter");
+        searchResList.add("Milk");
+
+        list.setAdapter(new ArrayAdapter(searchFood.this, android.R.layout.simple_list_item_1, searchResList));
+
         searchBtn.setOnClickListener(new View.OnClickListener()
         {
             public void onClick(View view)
@@ -89,7 +101,50 @@ public class searchFood extends AppCompatActivity {
 
     }
 
-    private void createDialog(){
+//    private void createDialog(){
+//        final Dialog dialog = new Dialog(searchFood.this);
+//        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+//        dialog.setContentView(R.layout.activity_food_dialog);
+//
+//        final EditText editGrams = dialog.findViewById(R.id.gramsConsumed);
+//
+//        editGrams.addTextChangedListener(new TextWatcher() {
+//            @Override
+//            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+//
+//            }
+//
+//            @Override
+//            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+//
+//            }
+//
+//            @Override
+//            public void afterTextChanged(Editable editable) {
+//                dialogMap.put("WEIGHT_INPUT", editable.toString());
+//                addDataSet();
+//            }
+//        });
+//
+//        pieChart = dialog.findViewById(R.id.chart1);
+//
+//        pieChart.setRotationEnabled(true);
+//        //pieChart.setUsePercentValues(true);
+//        //pieChart.setHoleColor(Color.BLUE);
+//        //pieChart.setCenterTextColor(Color.BLACK);
+//        pieChart.setHoleRadius(50f);
+//        pieChart.setTransparentCircleAlpha(0);
+//        pieChart.setCenterText(dialogMap.get("NAME"));
+//        pieChart.setCenterTextSize(10);
+//        //pieChart.setDrawEntryLabels(true);
+//        //pieChart.setEntryLabelTextSize(20);
+//        //More options just check out the documentation!
+//
+//        addDataSet();
+//        dialog.show();
+//    }
+
+    private void createDialog() {
         final Dialog dialog = new Dialog(searchFood.this);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setContentView(R.layout.activity_food_dialog);
@@ -110,68 +165,82 @@ public class searchFood extends AppCompatActivity {
             @Override
             public void afterTextChanged(Editable editable) {
                 dialogMap.put("WEIGHT_INPUT", editable.toString());
-                addDataSet();
+
+//                addDataSet();
             }
         });
 
-        pieChart = dialog.findViewById(R.id.chart1);
+        mPieChart = dialog.findViewById(R.id.chart1);
 
-        pieChart.setRotationEnabled(true);
-        //pieChart.setUsePercentValues(true);
-        //pieChart.setHoleColor(Color.BLUE);
-        //pieChart.setCenterTextColor(Color.BLACK);
-        pieChart.setHoleRadius(50f);
-        pieChart.setTransparentCircleAlpha(0);
-        pieChart.setCenterText(dialogMap.get("NAME"));
-        pieChart.setCenterTextSize(10);
-        //pieChart.setDrawEntryLabels(true);
-        //pieChart.setEntryLabelTextSize(20);
-        //More options just check out the documentation!
+        TextView tx = dialog.findViewById(R.id.foodText);
+        tx.setText(dialogMap.get("NAME"));
 
-        addDataSet();
+        mPieChart.addPieSlice(new PieModel("Fat", Integer.parseInt(dialogMap.get("FAT")), Color.parseColor("#c40303")));
+        mPieChart.addPieSlice(new PieModel("Protein", Integer.parseInt(dialogMap.get("CARBS")), Color.parseColor("#56B7F1")));
+        mPieChart.addPieSlice(new PieModel("Carbohydrates", Integer.parseInt(dialogMap.get("PROTEIN")), Color.parseColor("#18ba2d")));
+
+        mPieChart.startAnimation();
         dialog.show();
     }
 
-    private void addDataSet() {
-        ArrayList<PieEntry> yEntrys = new ArrayList<>();
-        float divider = 1;
-        float dividerInput = 1;
-        if(dialogMap.get("WEIGHT") != "null"){
-            divider = Float.parseFloat(dialogMap.get("WEIGHT")) / 100;
-        }
-        if(!dialogMap.get("WEIGHT_INPUT").isEmpty()){
-            dividerInput = (Float.parseFloat(dialogMap.get("WEIGHT_INPUT")) / 100);
-        }
-
-
-        if(dialogMap.get("FAT") != "null"){
-            yEntrys.add(new PieEntry((Float.parseFloat(dialogMap.get("FAT")) * dividerInput)  / divider, 1));
-        }
-        if(dialogMap.get("CARBS") != "null") {
-            yEntrys.add(new PieEntry((Float.parseFloat(dialogMap.get("CARBS")) * dividerInput) / divider, 2));
-        }
-        if(dialogMap.get("PROTEIN") != "null") {
-            yEntrys.add(new PieEntry((Float.parseFloat(dialogMap.get("PROTEIN")) * dividerInput) / divider, 3));
-        }
-
-        //create the data set
-        PieDataSet pieDataSet = new PieDataSet(yEntrys, "Micro nutrients");
-        pieDataSet.setSliceSpace(2);
-        pieDataSet.setValueTextSize(12);
-
-        //add colors to dataset
-        ArrayList<Integer> colors = new ArrayList<>();
-        colors.add(Color.RED);
-        colors.add(Color.GREEN);
-        colors.add(Color.BLUE);
-
-        pieDataSet.setColors(colors);
-
-        //create pie data object
-        PieData pieData = new PieData(pieDataSet);
-        pieChart.setData(pieData);
-        pieChart.invalidate();
-    }
+//        pieChart = dialog.findViewById(R.id.chart1);
+//
+//        pieChart.setRotationEnabled(true);
+//        //pieChart.setUsePercentValues(true);
+//        //pieChart.setHoleColor(Color.BLUE);
+//        //pieChart.setCenterTextColor(Color.BLACK);
+//        pieChart.setHoleRadius(50f);
+//        pieChart.setTransparentCircleAlpha(0);
+//        pieChart.setCenterText(dialogMap.get("NAME"));
+//        pieChart.setCenterTextSize(10);
+//        //pieChart.setDrawEntryLabels(true);
+//        //pieChart.setEntryLabelTextSize(20);
+//        //More options just check out the documentation!
+//
+//        addDataSet();
+//        dialog.show();
+//    }
+//
+//    private void addDataSet() {
+//        ArrayList<PieEntry> yEntrys = new ArrayList<>();
+//        float divider = 1;
+//        float dividerInput = 1;
+//        if(dialogMap.get("WEIGHT") != "null"){
+//            divider = Float.parseFloat(dialogMap.get("WEIGHT")) / 100;
+//        }
+//        if(!dialogMap.get("WEIGHT_INPUT").isEmpty()){
+//            dividerInput = (Float.parseFloat(dialogMap.get("WEIGHT_INPUT")) / 100);
+//        }
+//
+//
+//        if(dialogMap.get("FAT") != "null"){
+//            yEntrys.add(new PieEntry((Float.parseFloat(dialogMap.get("FAT")) * dividerInput)  / divider, 1));
+//        }
+//        if(dialogMap.get("CARBS") != "null") {
+//            yEntrys.add(new PieEntry((Float.parseFloat(dialogMap.get("CARBS")) * dividerInput) / divider, 2));
+//        }
+//        if(dialogMap.get("PROTEIN") != "null") {
+//            yEntrys.add(new PieEntry((Float.parseFloat(dialogMap.get("PROTEIN")) * dividerInput) / divider, 3));
+//        }
+//
+//        //create the data set
+//        PieDataSet pieDataSet = new PieDataSet(yEntrys, "Micro nutrients");
+//        pieDataSet.setSliceSpace(2);
+//        pieDataSet.setValueTextSize(12);
+//
+//        //add colors to dataset
+//        ArrayList<Integer> colors = new ArrayList<>();
+//        colors.add(Color.RED);
+//        colors.add(Color.GREEN);
+//        colors.add(Color.BLUE);
+//
+//        pieDataSet.setColors(colors);
+//
+//        //create pie data object
+//        PieData pieData = new PieData(pieDataSet);
+//        pieChart.setData(pieData);
+//        pieChart.invalidate();
+//    }
 
 
 

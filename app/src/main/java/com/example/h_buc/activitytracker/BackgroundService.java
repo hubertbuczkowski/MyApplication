@@ -36,13 +36,12 @@ import java.util.TimerTask;
 public class BackgroundService extends Service {
 
     Records rc = new Records();
+    Date currentDate = new Date();
 
-    @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         return START_STICKY;
     }
 
-    @Override
     public IBinder onBind(Intent intent) {
         return null;
     }
@@ -53,12 +52,12 @@ public class BackgroundService extends Service {
         java.util.Timer t = new java.util.Timer();
         t.schedule(new TimerTask() {
             public void run() {
-                showNoti();
+                startSaving();
             }
         }, 5000, 5000*60);
     }
 
-    public void showNoti(){
+    public void startSaving(){
         Handler handler = new Handler(Looper.getMainLooper());
         handler.post(new Runnable() {
 
@@ -68,12 +67,15 @@ public class BackgroundService extends Service {
                 FirebaseUser currentUser = mAuth.getCurrentUser();
                 DatabaseReference database = FirebaseDatabase.getInstance().getReference(currentUser.getUid());
 
-                rc.update(database, getApplicationContext());
+                if(currentDate != new Date())
+                {
+                    currentDate = new Date();
+                    rc.synchronise();
+                }
 
-                Toast.makeText(getApplicationContext(), "recorded", Toast.LENGTH_SHORT).show();
+                rc.update(database, getApplicationContext());
             }
         });
-
     }
 
 }

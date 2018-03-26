@@ -7,20 +7,32 @@
     tools:context="com.example.h_buc.activitytracker.searchFood">
 
     <ImageView
-        android:id="@+id/searchView"
+        android:id="@+id/barcodeView"
         android:layout_width="53dp"
         android:layout_height="45dp"
         android:layout_marginRight="16dp"
         android:layout_marginTop="16dp"
-        android:hint="Username"
         android:background="@color/colorAccent"
+        android:hint="Username"
         app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@android:drawable/ic_menu_camera" />
+
+    <ImageView
+        android:id="@+id/searchView"
+        android:layout_width="53dp"
+        android:layout_height="45dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginTop="16dp"
+        android:background="@color/colorAccent"
+        android:hint="Username"
+        app:layout_constraintEnd_toStartOf="@+id/barcodeView"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@android:drawable/ic_menu_search" />
 
     <AutoCompleteTextView
         android:id="@+id/searchAuto"
-        android:layout_width="288dp"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
         android:layout_marginLeft="48dp"

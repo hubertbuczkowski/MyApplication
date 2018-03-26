@@ -115,10 +115,14 @@ public class Records implements GoogleApiClient.ConnectionCallbacks, GoogleApiCl
                 bandController bd = new bandController();
                 bd.getBoundedDevice(ctx);
                 database.child("Records").child(current_date).child(current_time).child("Heart Rate").setValue(bd.startScanHeartRate(ctx));
-                System.out.println("tread eecuted");
+                System.out.println("tread executed");
                 bd = null;
             }
         }).start();
+    }
+
+    public void synchronise(){
+
     }
 
 
