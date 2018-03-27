@@ -84,7 +84,7 @@ public class bandManagement extends AppCompatActivity implements GoogleApiClient
     FirebaseDatabase db;
     DatabaseReference dRef ;
     ImageButton usrBtn, logout;
-    TextView steps, bodyCal, exerciseCal, consumedCal, totalCal;
+    TextView bodyCal, exerciseCal, consumedCal, totalCal;
     private FirebaseAuth mAuth = FirebaseAuth.getInstance();
     FirebaseUser currentUser;
 
@@ -136,26 +136,12 @@ public class bandManagement extends AppCompatActivity implements GoogleApiClient
         });
 
 
-        steps = findViewById(R.id.steps);
         bodyCal = findViewById(R.id.bodyCals);
         exerciseCal = findViewById(R.id.exerciseCals);
         consumedCal = findViewById(R.id.Consumed);
         totalCal = findViewById(R.id.leftCals);
-
-        db = FirebaseDatabase.getInstance();
-        dRef = db.getReference("SimpleMessage");
-        dRef.addValueEventListener(new ValueEventListener() {
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                String value = dataSnapshot.getValue(String.class);
-                //heartRate.setText(value);
-                Log.d("DB SUCC", "Value is: " + value);
-            }
-
-            public void onCancelled(DatabaseError error) {
-                // Failed to read value
-                Log.w("DB WARN", "Failed to read value.", error.toException());
-            }
-        });
+        mCircleView = findViewById(R.id.circleView);
+        mCircleView.setTextMode(TextMode.TEXT);
 
         long total = 0;
 
@@ -199,9 +185,7 @@ public class bandManagement extends AppCompatActivity implements GoogleApiClient
             }
         });
 
-        mCircleView = findViewById(R.id.circleView);
-        mCircleView.setTextMode(TextMode.TEXT);
-        mCircleView.setText("725/2500");
+
 
         usrBtn = (ImageButton) findViewById(R.id.userSettings);
         logout = (ImageButton) findViewById(R.id.logout);
@@ -308,10 +292,14 @@ public class bandManagement extends AppCompatActivity implements GoogleApiClient
 
         bodycals[0] = (int) (10*weight[0] + 6.25*height[0] - 5*22 + 5);
         excals = (55 * Integer.parseInt(stepsStr)) / 1250;
-        conscals = 725;
+        conscals = 1681;
         totcals = bodycals[0] + excals - conscals;
 
-        steps.setText(stepsStr + " steps done today");
+        mCircleView.setMaxValue(bodycals[0] + excals);
+        mCircleView.setValue(1681);
+
+        mCircleView.setText("1681/" + Integer.toString(bodycals[0] + excals));
+
         bodyCal.setText(Integer.toString(bodycals[0]));
 
 
