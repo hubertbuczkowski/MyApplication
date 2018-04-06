@@ -12,12 +12,14 @@
         android:layout_height="200dp"
         android:layout_marginTop="8dp"
         app:egCurveSmoothness="0.4"
-        app:egIndicatorLineColor="#FE6DA8"
+        app:egIndicatorLineColor="#FF1944"
         app:egLegendHeight="40dp"
         app:egShowStandardValue="true"
         app:egUseCubic="true"
         app:egUseOverlapFill="true"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView9" />
 
     <org.eazegraph.lib.charts.ValueLineChart
         android:id="@+id/heart_reate_timeline"
@@ -25,12 +27,40 @@
         android:layout_height="200dp"
         android:layout_marginTop="8dp"
         app:egCurveSmoothness="0.4"
-        app:egIndicatorLineColor="#FE6DA8"
+        app:egIndicatorLineColor="#FF1944"
         app:egLegendHeight="40dp"
         app:egShowStandardValue="true"
         app:egUseCubic="true"
         app:egUseOverlapFill="true"
         app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView5" />
+
+    <TextView
+        android:id="@+id/textView5"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:text="Heart Rate"
+        android:textSize="18sp"
+        android:textStyle="bold|italic"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/steps_timeline" />
+
+    <TextView
+        android:id="@+id/textView9"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:text="Steps"
+        android:textSize="18sp"
+        android:textStyle="bold|italic"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 </android.support.constraint.ConstraintLayout>

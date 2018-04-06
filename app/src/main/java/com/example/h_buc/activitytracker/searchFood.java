@@ -175,9 +175,9 @@ public class searchFood extends AppCompatActivity {
         TextView tx = dialog.findViewById(R.id.foodText);
         tx.setText(dialogMap.get("NAME"));
 
-        mPieChart.addPieSlice(new PieModel("Fat", Integer.parseInt(dialogMap.get("FAT")), Color.parseColor("#c40303")));
-        mPieChart.addPieSlice(new PieModel("Protein", Integer.parseInt(dialogMap.get("CARBS")), Color.parseColor("#56B7F1")));
-        mPieChart.addPieSlice(new PieModel("Carbohydrates", Integer.parseInt(dialogMap.get("PROTEIN")), Color.parseColor("#18ba2d")));
+        mPieChart.addPieSlice(new PieModel("Fat", Integer.parseInt(dialogMap.get("FAT")), Color.parseColor("#FF1944")));
+        mPieChart.addPieSlice(new PieModel("Protein", Integer.parseInt(dialogMap.get("CARBS")), Color.parseColor("#00B5FF")));
+        mPieChart.addPieSlice(new PieModel("Carbohydrates", Integer.parseInt(dialogMap.get("PROTEIN")), Color.parseColor("#CCC314")));
 
         mPieChart.startAnimation();
         dialog.show();

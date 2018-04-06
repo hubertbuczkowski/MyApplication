@@ -1,6 +1,7 @@
 package com.example.h_buc.activitytracker;
 
 import android.annotation.SuppressLint;
+import android.app.Dialog;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothGatt;
@@ -16,10 +17,15 @@ import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.BottomSheetDialogFragment;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
+import android.view.Window;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -33,7 +39,10 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
@@ -64,6 +73,10 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import org.eazegraph.lib.charts.ValueLineChart;
+import org.eazegraph.lib.models.ValueLinePoint;
+import org.eazegraph.lib.models.ValueLineSeries;
+
 import at.grabner.circleprogress.CircleProgressView;
 import at.grabner.circleprogress.TextMode;
 
@@ -73,20 +86,13 @@ import at.grabner.circleprogress.TextMode;
 
 public class bandManagement extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
-    BluetoothAdapter bluetoothAdapter;
-    BluetoothGatt bluetoothGatt;
-    BluetoothDevice bluetoothDevice;
-
-    Boolean isListeningHeartRate = false;
-    //TextView txtStatus;
-    //TextView txtMac;
-    //TextView heartRate;
     FirebaseDatabase db;
     DatabaseReference dRef ;
     ImageButton usrBtn, logout;
     TextView bodyCal, exerciseCal, consumedCal, totalCal;
     private FirebaseAuth mAuth = FirebaseAuth.getInstance();
     FirebaseUser currentUser;
+    LinearLayout ln;
 
     CircleProgressView mCircleView;
     FloatingActionButton addBtn;
@@ -217,11 +223,80 @@ public class bandManagement extends AppCompatActivity implements GoogleApiClient
             }
         });
 
+        mCircleView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                activityDetail();
+            }
+        });
+
+        ln = findViewById(R.id.linearLayout);
+
+        ln.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                foodDetail();
+            }
+        });
+
         Intent i = new Intent(this, BackgroundService.class);
 
         getApplicationContext().startService(i);
     }
 
+    void activityDetail(){
+        final Dialog dialog = new Dialog(bandManagement.this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.fragment_activity_details);
+        DatabaseReference database = FirebaseDatabase.getInstance().getReference(currentUser.getUid());
+
+        DatabaseReference i = database.child("Records").child("06032018");
+        final ValueLineChart mSteps = (ValueLineChart) dialog.findViewById(R.id.steps_timeline);
+        final ValueLineChart mHeart = (ValueLineChart) dialog.findViewById(R.id.heart_reate_timeline);
+
+        final ValueLineSeries steps = new ValueLineSeries();
+        final ValueLineSeries heart = new ValueLineSeries();
+        steps.setColor(0xFF56B7F1);
+        heart.setColor(0xFF0DFFC1);
+
+        i.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot)
+            {
+                Map<String,Object> res = (Map<String, Object>) dataSnapshot.getValue();
+                SortedSet<String> keys = new TreeSet<>(res.keySet());
+                for (String key : keys) {
+                    Map<String, String> entry = (Map) res.get(key);
+                    steps.addPoint(new ValueLinePoint(key, Integer.parseInt(entry.get("Steps"))));
+                    if(entry.get("Heart Rate") != null) {
+                        heart.addPoint(new ValueLinePoint(key, Integer.parseInt(entry.get("Heart Rate"))));
+                    }
+                    else
+                    {
+                        heart.addPoint(new ValueLinePoint(key, 0));
+                    }
+                }
+
+                mSteps.addSeries(steps);
+                mSteps.startAnimation();
+                mHeart.addSeries(heart);
+                mHeart.startAnimation();
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+        dialog.show();
+    }
+
+    void foodDetail(){
+        final Dialog dialog = new Dialog(bandManagement.this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.fragment_food_details);
+        dialog.show();
+    }
 
 
 
