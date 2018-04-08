@@ -23,7 +23,8 @@ public class internalDatabaseManager  extends SQLiteOpenHelper {
 
     //Records TABLE
     private static final String RECORDS_TABLE = "Records";
-    private static final String RECORDS_TIME = "Date";
+    private static final String RECORDS_DATE = "Date";
+    private static final String RECORDS_TIME = "Time";
     private static final String RECORDS_HR = "HeartRate";
     private static final String RECORDS_STEPS = "Steps";
     private static final String RECORDS_SYNC = "Sync";
@@ -49,14 +50,15 @@ public class internalDatabaseManager  extends SQLiteOpenHelper {
 
     public void onCreate(SQLiteDatabase db) {
         db.execSQL("create table Records (" +
-                "Date text primary key not null," +
+                "Date text not null," +
+                "Time text not null," +
                 "HeartRate integer not null," +
                 "Steps integer not null," +
                 "sync boolean not null)");
 
         db.execSQL("create table History (" +
-                "Date text primary key not null," +
-                "FoodId integer not null," +
+                "Date text not null," +
+                "Time text not null," +
                 "FoodName text not null," +
                 "Grams integer not null," +
                 HISTORY_PROTEIN + " integer not null," +
@@ -77,17 +79,33 @@ public class internalDatabaseManager  extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    public void addRecord(Date date, String hr, String steps, Boolean sync){
+    public void addRecord(String date, String time, String hr, String steps, Boolean sync){
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
 
-        values.put(RECORDS_TIME, new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(date));
+        values.put(RECORDS_TIME, time);
+        values.put(RECORDS_DATE, date);
         values.put(RECORDS_HR, hr);
         values.put(RECORDS_STEPS, steps);
         values.put(RECORDS_SYNC, sync);
 
-        db.insert("Prod_Shop", null, values);
+        db.insert(RECORDS_TABLE, null, values);
+        this.db.close();
+    }
+
+    public void updateHR(String date, String time, String hr, String steps, Boolean sync){
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+
+        values.put(RECORDS_DATE, date);
+        values.put(RECORDS_TIME, time);
+        values.put(RECORDS_HR, hr);
+        values.put(RECORDS_STEPS, steps);
+        values.put(RECORDS_SYNC, sync);
+
+        db.update(RECORDS_TABLE, values, "Time=? AND Date=?", new String[]{time, date});
         this.db.close();
     }
 

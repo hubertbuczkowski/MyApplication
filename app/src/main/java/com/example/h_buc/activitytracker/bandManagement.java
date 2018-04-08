@@ -26,6 +26,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -38,6 +39,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
@@ -558,7 +560,24 @@ public class bandManagement extends AppCompatActivity implements GoogleApiClient
         final Dialog dialog = new Dialog(bandManagement.this);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setContentView(R.layout.fragment_food_details);
-        LinearLayout ln = dialog.findViewById(R.id.linearLayout2);
+        ListView ln = dialog.findViewById(R.id.foodListView);
+
+        ArrayList<foodLinear> food = new ArrayList<foodLinear>();
+
+        Map<String, Object> prods = (Map) foodDetails.get(meal);
+        if(prods != null)
+        {
+            for(String key : prods.keySet())
+            {
+                Map<String, String> product = (Map) prods.get(key);
+                foodLinear fl = new foodLinear(product.get("Name"),
+                        product.get("Weight"), product.get("Protein"), product.get("Carb"), product.get("Fat"), product.get("Calories"));
+                food.add(fl);
+
+            }
+            foodLinearAdapter adapter = new foodLinearAdapter(this, food);
+            ln.setAdapter(adapter);
+        }
 
         dialog.show();
     }
