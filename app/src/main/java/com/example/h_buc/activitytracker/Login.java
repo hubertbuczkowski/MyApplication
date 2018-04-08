@@ -26,13 +26,9 @@ public class Login extends AppCompatActivity {
     TextView user;
     TextView pass;
     private FirebaseAuth mAuth;
-    SaveSharedPreference session;
 
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-
-
+    protected void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         mAuth = FirebaseAuth.getInstance();
@@ -45,7 +41,6 @@ public class Login extends AppCompatActivity {
         {
             autoLogin(SaveSharedPreference.getUserName(getApplicationContext()), SaveSharedPreference.getPassword(getApplicationContext()));
         }
-        //var1.ConnectionToDB();
         user = findViewById(R.id.UsernameText);
         pass = findViewById(R.id.PassText);
 
@@ -67,11 +62,10 @@ public class Login extends AppCompatActivity {
                 register();
             }
         });
-
     }
 
-    private boolean checkUser(String username, String password){
-
+    private boolean checkUser(String username, String password)
+    {
         if(username.isEmpty())
         {
             user.setError("Email is required");
@@ -92,7 +86,6 @@ public class Login extends AppCompatActivity {
             pass.requestFocus();
             return false;
         }
-
         return true;
     }
 
@@ -122,17 +115,20 @@ public class Login extends AppCompatActivity {
 
     private void autoLogin(final String username, final String password)
     {
-        if(checkUser(username, password)) {
+        if(checkUser(username, password))
+        {
             mAuth.signInWithEmailAndPassword(username, password).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                 @Override
                 public void onComplete(@NonNull Task<AuthResult> task) {
-                    if (task.isSuccessful()) {
+                    if (task.isSuccessful())
+                    {
                         SaveSharedPreference.setUserName(getApplicationContext(), username, password);
                         Intent intent = new Intent(getApplicationContext(), bandManagement.class);
                         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         startActivity(intent);
                     }
-                    else {
+                    else
+                    {
                         Toast.makeText(getApplicationContext(), task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 }
@@ -147,27 +143,33 @@ public class Login extends AppCompatActivity {
         String password = pass.getText().toString().trim();
 
 
-        if(checkUser(username, password)) {
+        if(checkUser(username, password))
+        {
             mAuth.createUserWithEmailAndPassword(username, password)
-                    .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    .addOnCompleteListener(this, new OnCompleteListener<AuthResult>()
+                    {
                         @Override
-                        public void onComplete(@NonNull Task<AuthResult> task) {
-                            if (task.isSuccessful()) {
+                        public void onComplete(@NonNull Task<AuthResult> task)
+                        {
+                            if (task.isSuccessful())
+                            {
                                 // Sign in success, update UI with the signed-in user's information
                                 FirebaseUser user = mAuth.getCurrentUser();
                                 DatabaseReference database = FirebaseDatabase.getInstance().getReference();
                                 database.child(user.getUid()).child("Firstname").setValue("Fresh register");
-                            } else {
-
-                                if (task.getException() instanceof FirebaseAuthUserCollisionException) {
+                            }
+                            else
+                            {
+                                if (task.getException() instanceof FirebaseAuthUserCollisionException)
+                                {
                                     Toast.makeText(getApplicationContext(), "User already exists", Toast.LENGTH_SHORT).show();
-                                } else {
+                                }
+                                else
+                                {
                                     Toast.makeText(getApplicationContext(), task.getException().getMessage(), Toast.LENGTH_SHORT).show();
 
                                 }
                             }
-
-                            // ...
                         }
                     });
         }

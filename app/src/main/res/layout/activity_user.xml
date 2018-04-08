@@ -34,13 +34,14 @@
         android:layout_height="wrap_content"
         android:paddingLeft="16dp"
         android:paddingRight="16dp"
+        app:hintTextAppearance="@style/MyHintText"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.441"
-        app:hintTextAppearance="@style/MyHintText">
+        app:layout_constraintVertical_bias="0.31">
+
         <EditText
             android:id="@+id/editText"
             android:layout_width="match_parent"
@@ -48,7 +49,7 @@
             android:ems="10"
             android:hint="First Name"
             android:inputType="textPersonName"
-            android:theme="@style/MyEditText"/>
+            android:theme="@style/MyEditText" />
     </android.support.design.widget.TextInputLayout>
 
     <android.support.design.widget.TextInputLayout
@@ -98,6 +99,7 @@
             android:hint="Email"
             android:inputType="textPersonName"
             android:theme="@style/MyEditText"
+            android:editable="false"
              />
     </android.support.design.widget.TextInputLayout>
 
@@ -141,20 +143,17 @@
         app:layout_constraintHorizontal_bias="0.496"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.969"
+        app:layout_constraintTop_toBottomOf="@+id/goalBar"
         tools:ignore="MissingConstraints" />
 
     <TextView
         android:id="@+id/goalBar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
         android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/seekBar"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editText55" />
+        app:layout_constraintTop_toBottomOf="@+id/editText65" />
 
     <android.support.design.widget.TextInputLayout
         android:id="@+id/editText55"
@@ -181,8 +180,35 @@
             />
     </android.support.design.widget.TextInputLayout>
 
+    <android.support.design.widget.TextInputLayout
+        android:id="@+id/editText65"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/editText55"
+        app:layout_constraintVertical_bias="0.0"
+        app:hintTextAppearance="@style/MyHintText">
+
+        <EditText
+            android:id="@+id/editText6"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:layout_marginTop="8dp"
+            android:ems="10"
+            android:hint="Age"
+            android:inputType="numberDecimal"
+            android:theme="@style/MyEditText" />
+    </android.support.design.widget.TextInputLayout>
+
+
+
     <RadioButton
-        android:id="@+id/radio0"
+        android:id="@+id/radioMale"
         android:layout_width="150dp"
         android:layout_height="35dp"
         android:layout_marginBottom="8dp"
@@ -196,12 +222,12 @@
         android:textColor="@android:color/white"
         android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@+id/editText1"
-        app:layout_constraintEnd_toStartOf="@+id/radioButton2"
+        app:layout_constraintEnd_toStartOf="@+id/radioFemale"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView10" />
 
     <RadioButton
-        android:id="@+id/radioButton2"
+        android:id="@+id/radioFemale"
         android:layout_width="150dp"
         android:layout_height="35dp"
         android:layout_marginBottom="8dp"
@@ -216,7 +242,7 @@
         android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@+id/editText1"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/radio0"
+        app:layout_constraintStart_toEndOf="@+id/radioMale"
         app:layout_constraintTop_toBottomOf="@+id/textView10"
         app:layout_constraintVertical_bias="0.502" />
 

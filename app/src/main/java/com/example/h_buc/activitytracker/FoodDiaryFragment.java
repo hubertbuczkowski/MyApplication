@@ -52,43 +52,42 @@ public class FoodDiaryFragment extends BottomSheetDialogFragment {
         {
             public void onClick(View view)
             {
-                addFood();
+                addFood("Breakfast");
             }
         });
-
         ln.setOnClickListener(new View.OnClickListener()
         {
             public void onClick(View view)
             {
-                addFood();
+                addFood("Lunch");
             }
         });
         dn.setOnClickListener(new View.OnClickListener()
         {
             public void onClick(View view)
             {
-                addFood();
+                addFood("Dinner");
             }
         });
         su.setOnClickListener(new View.OnClickListener()
         {
             public void onClick(View view)
             {
-                addFood();
+                addFood("Supper");
             }
         });
         sn.setOnClickListener(new View.OnClickListener()
         {
             public void onClick(View view)
             {
-                addFood();
+                addFood("Snack");
             }
         });
         we.setOnClickListener(new View.OnClickListener()
         {
             public void onClick(View view)
             {
-                addFood();
+                addFood("Weight");
             }
         });
 
@@ -98,8 +97,9 @@ public class FoodDiaryFragment extends BottomSheetDialogFragment {
         }
     }
 
-    void addFood(){
+    void addFood(String meal){
         Intent intent = new Intent(getActivity(), searchFood.class);
+        intent.putExtra("Meal Type", meal);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
     }

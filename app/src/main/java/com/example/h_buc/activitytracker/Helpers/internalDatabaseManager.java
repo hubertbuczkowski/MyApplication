@@ -34,6 +34,10 @@ public class internalDatabaseManager  extends SQLiteOpenHelper {
     private static final String HISTORY_ID = "FoodId";
     private static final String HISTORY_NAME = "FoodName";
     private static final String HISTORY_WEIGHT = "Grams";
+    private static final String HISTORY_PROTEIN = "Protein";
+    private static final String HISTORY_CARB = "Carbs";
+    private static final String HISTORY_FAT = "Fat";
+    private static final String HISTORY_CALS = "Calories";
     private static final String HISTORY_TYPE = "MealType";
     private static final String HISTORY_SYNC = "Sync";
 
@@ -55,7 +59,11 @@ public class internalDatabaseManager  extends SQLiteOpenHelper {
                 "FoodId integer not null," +
                 "FoodName text not null," +
                 "Grams integer not null," +
-                "MealType integer not null," +
+                HISTORY_PROTEIN + " integer not null," +
+                HISTORY_CARB + " integer not null," +
+                HISTORY_FAT + " integer not null," +
+                HISTORY_CALS + " integer not null," +
+                HISTORY_TYPE + " integer not null," +
                 "Sync boolean not null)");
 
         this.db = db;

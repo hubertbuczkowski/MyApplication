@@ -31,6 +31,9 @@ import android.widget.Toast;
 
 import java.sql.Driver;
 import java.text.DateFormat;
+import java.text.DecimalFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -38,6 +41,7 @@ import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -76,6 +80,7 @@ import com.google.firebase.database.ValueEventListener;
 import org.eazegraph.lib.charts.ValueLineChart;
 import org.eazegraph.lib.models.ValueLinePoint;
 import org.eazegraph.lib.models.ValueLineSeries;
+import org.w3c.dom.Text;
 
 import at.grabner.circleprogress.CircleProgressView;
 import at.grabner.circleprogress.TextMode;
@@ -94,114 +99,36 @@ public class bandManagement extends AppCompatActivity implements GoogleApiClient
     FirebaseUser currentUser;
     LinearLayout ln;
 
+    TextView bPro, bCal, bFat, bCarb,
+            lPro, lCal, lFat, lCarb,
+            dPro, dCal, dFat, dCarb,
+            sPro, sCal, sFat, sCarb,
+            snPro, snCal, snFat, snCarb,
+            tPro, tCal, tFat, tCarb;
+
     CircleProgressView mCircleView;
     FloatingActionButton addBtn;
-
-    int[] height = new int[1];
-    float[] weight = new float[1];
-
-    String stepAmountFromGoogle = "0";
-
-    Records rc;
 
     private BottomSheetBehavior mBottomSheetBehavior;
     BottomSheetDialogFragment bottomSheetDialogFragment;
 
-    protected void onCreate(Bundle savedInstanceState) {
+    int bodyCals;
+    int excals;
+    int conscals;
+    int totcals;
+    Map<String, Object> foodDetails;
+    Map<String, Map<String, String>> activityRecords = new HashMap<>();
 
-
+    protected void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_connection);
-        //initialie();
-        //getBoundedDevice();
-
-        bottomSheetDialogFragment = new FoodDiaryFragment();
-
-
-
-
-
-        currentUser = mAuth.getCurrentUser();
-        DatabaseReference database = FirebaseDatabase.getInstance().getReference(currentUser.getUid());
-
-
-        database.child("Height").addValueEventListener(new ValueEventListener() {
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                height[0] = (int) Integer.parseInt(dataSnapshot.getValue().toString());
-                updateCals();
-            }
-            public void onCancelled(DatabaseError databaseError) {}
-        });
-
-        database.child("Weight").addValueEventListener(new ValueEventListener() {
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                weight[0] = (float) Float.parseFloat(dataSnapshot.getValue().toString());
-                updateCals();
-            }
-            public void onCancelled(DatabaseError databaseError) {}
-        });
-
-
-        bodyCal = findViewById(R.id.bodyCals);
-        exerciseCal = findViewById(R.id.exerciseCals);
-        consumedCal = findViewById(R.id.Consumed);
-        totalCal = findViewById(R.id.leftCals);
-        mCircleView = findViewById(R.id.circleView);
-        mCircleView.setTextMode(TextMode.TEXT);
-
-        long total = 0;
-
-        // Create a GoogleApiClient instance
-        GoogleApiClient mClient = new GoogleApiClient.Builder(this)
-                .addApi(Fitness.HISTORY_API)
-                .addScope(new Scope(Scopes.FITNESS_ACTIVITY_READ))
-                .addConnectionCallbacks(this)
-                .enableAutoManage(this, 0, this)
-                .build();
-
-        mClient.connect();
-
-
-        Calendar cal = Calendar.getInstance();
-        Date now = new Date();
-        cal.setTime(getEndOfDay(now));
-        long endTime = cal.getTimeInMillis();
-        cal.add(Calendar.DAY_OF_WEEK, -1);
-        long startTime = cal.getTimeInMillis();
-
-        final DataSource ds = new DataSource.Builder()
-                .setAppPackageName("com.google.android.gms")
-                .setDataType(DataType.TYPE_STEP_COUNT_DELTA)
-                .setType(DataSource.TYPE_DERIVED)
-                .setStreamName("estimated_steps")
-                .build();
-
-        DataReadRequest req = new DataReadRequest.Builder()
-                .aggregate(ds,DataType.AGGREGATE_STEP_COUNT_DELTA)
-                .bucketByTime(1, TimeUnit.DAYS)
-                .setTimeRange(startTime, endTime, TimeUnit.MILLISECONDS)
-                .build();
-
-        PendingResult<DataReadResult> resultsData = Fitness.HistoryApi.readData(mClient, req);
-
-        resultsData.setResultCallback(new ResultCallback<DataReadResult>() {
-            @Override
-            public void onResult(@NonNull DataReadResult dataReadResult) {
-                showDataSet(dataReadResult.getBuckets().get(0).getDataSets().get(0));
-            }
-        });
-
-
-
-        usrBtn = (ImageButton) findViewById(R.id.userSettings);
-        logout = (ImageButton) findViewById(R.id.logout);
-        addBtn = findViewById(R.id.addButton);
+        initialize();
 
         addBtn.setOnClickListener(new View.OnClickListener()
         {
             public void onClick(View view)
             {
-                //addFood();
                 bottomSheetDialogFragment.show(getSupportFragmentManager(), bottomSheetDialogFragment.getTag());
             }
         });
@@ -218,8 +145,6 @@ public class bandManagement extends AppCompatActivity implements GoogleApiClient
             public void onClick(View view)
             {
                 Logout();
-
-
             }
         });
 
@@ -230,7 +155,6 @@ public class bandManagement extends AppCompatActivity implements GoogleApiClient
             }
         });
 
-        ln = findViewById(R.id.linearLayout);
 
         ln.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -242,6 +166,326 @@ public class bandManagement extends AppCompatActivity implements GoogleApiClient
         Intent i = new Intent(this, BackgroundService.class);
 
         getApplicationContext().startService(i);
+    }
+
+    protected void onResume(){
+        super.onResume();
+        Toast.makeText(getApplicationContext(), "resume", Toast.LENGTH_SHORT).show();
+        resetData();
+        DatabaseReference database = FirebaseDatabase.getInstance().getReference(currentUser.getUid());
+        readExercisesFirebase(database);
+    }
+
+    void resetData(){
+        bPro.setText("0");
+        bCal.setText("0");
+        bFat.setText("0");
+        bCarb.setText("0");
+        lPro.setText("0");
+        lCal.setText("0");
+        lFat.setText("0");
+        lCarb.setText("0");
+        dPro.setText("0");
+        dCal.setText("0");
+        dFat.setText("0");
+        dCarb.setText("0");
+        sPro.setText("0");
+        sCal.setText("0");
+        sFat.setText("0");
+        sCarb.setText("0");
+        snPro.setText("0");
+        snCal.setText("0");
+        snFat.setText("0");
+        snCarb.setText("0");
+        tPro.setText("0");
+        tCal.setText("0");
+        tFat.setText("0");
+        tCarb.setText("0");
+    }
+
+    void initialize(){
+        bottomSheetDialogFragment = new FoodDiaryFragment();
+        currentUser = mAuth.getCurrentUser();
+        bodyCal = findViewById(R.id.bodyCals);
+        exerciseCal = findViewById(R.id.exerciseCals);
+        consumedCal = findViewById(R.id.Consumed);
+        totalCal = findViewById(R.id.leftCals);
+        mCircleView = findViewById(R.id.circleView);
+        mCircleView.setTextMode(TextMode.TEXT);
+        usrBtn = (ImageButton) findViewById(R.id.userSettings);
+        logout = (ImageButton) findViewById(R.id.logout);
+        addBtn = findViewById(R.id.addButton);
+        ln = findViewById(R.id.linearLayout);
+
+        //Food details
+        bPro = findViewById(R.id.breakProt);
+        bCal = findViewById(R.id.breakCal);
+        bFat = findViewById(R.id.breakFat);
+        bCarb = findViewById(R.id.breakCarb);
+        lPro = findViewById(R.id.lunchProt);
+        lCal = findViewById(R.id.lunchCal);
+        lFat = findViewById(R.id.lunchFat);
+        lCarb = findViewById(R.id.lunchCarb);
+        dPro = findViewById(R.id.dinnerProt);
+        dCal = findViewById(R.id.dinnerCal);
+        dFat = findViewById(R.id.dinnerFat);
+        dCarb = findViewById(R.id.dinnerCarb);
+        sPro= findViewById(R.id.supperProt);
+        sCal = findViewById(R.id.supperCal);
+        sFat = findViewById(R.id.supperFat);
+        sCarb = findViewById(R.id.supperCarb);
+        snPro = findViewById(R.id.snackProt);
+        snCal = findViewById(R.id.snackCal);
+        snFat = findViewById(R.id.snackFat);
+        snCarb = findViewById(R.id.snackCarb);
+        tPro = findViewById(R.id.totalProt);
+        tCal = findViewById(R.id.totalCal);
+        tFat = findViewById(R.id.totalFat);
+        tCarb = findViewById(R.id.totalCarb);
+    }
+
+    double calculateHR(long time, int hr)
+    {
+        int age = Integer.parseInt(SaveSharedPreference.getPrefAge(getApplicationContext()));
+        float weight = Float.parseFloat(SaveSharedPreference.getPrefWeight(getApplicationContext()));
+        if(SaveSharedPreference.getPrefGender(getApplicationContext()) == "Male")
+        {
+            return (((age * 0.0217) - (weight * 0.1988) + (hr * 0.6309) - 55.0969) * time)/4.184;
+        }
+        else
+        {
+            return (((age * 0.074) - (weight * 0.1263) + (hr * 0.4472) - 20.4022) * time)/4.184;
+        }
+    }
+
+    double calculateSteps(int steps){
+        return steps  * 0.044;
+    }
+
+    void calculateFood(Map<String, Object> prods, String key)
+    {
+        DecimalFormat df = new DecimalFormat();
+        df.setMaximumFractionDigits(1);
+        for(String product : prods.keySet())
+        {
+            Map<String, String> details = (Map) prods.get(product);
+            if(key.equals("Breakfast"))
+            {
+                float cummulator = 0;
+                cummulator = Float.parseFloat(bPro.getText().toString());
+                cummulator = cummulator + Float.parseFloat(details.get("Protein"));
+                bPro.setText(df.format(cummulator));
+                cummulator = 0;
+                cummulator = Float.parseFloat(bCal.getText().toString());
+                cummulator = cummulator + Float.parseFloat(details.get("Calories"));
+                bCal.setText(df.format(cummulator));
+                cummulator = 0;
+                cummulator = Float.parseFloat(bFat.getText().toString());
+                cummulator = cummulator + Float.parseFloat(details.get("Fat"));
+                bFat.setText(df.format(cummulator));
+                cummulator = 0;
+                cummulator = Float.parseFloat(bCarb.getText().toString());
+                cummulator = cummulator + Float.parseFloat(details.get("Carb"));
+                bCarb.setText(df.format(cummulator));
+            }
+            if(key.equals("Lunch"))
+            {
+                float cummulator = 0;
+                cummulator = Float.parseFloat(lPro.getText().toString());
+                cummulator = cummulator + Float.parseFloat(details.get("Protein"));
+                lPro.setText(df.format(cummulator));
+                cummulator = 0;
+                cummulator = Float.parseFloat(lCal.getText().toString());
+                cummulator = cummulator + Float.parseFloat(details.get("Calories"));
+                lCal.setText(df.format(cummulator));
+                cummulator = 0;
+                cummulator = Float.parseFloat(lFat.getText().toString());
+                cummulator = cummulator + Float.parseFloat(details.get("Fat"));
+                lFat.setText(df.format(cummulator));
+                cummulator = 0;
+                cummulator = Float.parseFloat(lCarb.getText().toString());
+                cummulator = cummulator + Float.parseFloat(details.get("Carb"));
+                lCarb.setText(df.format(cummulator));
+            }
+            if(key.equals("Dinner"))
+            {
+                float cummulator = 0;
+                cummulator = Float.parseFloat(dPro.getText().toString());
+                cummulator = cummulator + Float.parseFloat(details.get("Protein"));
+                dPro.setText(df.format(cummulator));
+                cummulator = 0;
+                cummulator = Float.parseFloat(dCal.getText().toString());
+                cummulator = cummulator + Float.parseFloat(details.get("Calories"));
+                dCal.setText(df.format(cummulator));
+                cummulator = 0;
+                cummulator = Float.parseFloat(dFat.getText().toString());
+                cummulator = cummulator + Float.parseFloat(details.get("Fat"));
+                dFat.setText(df.format(cummulator));
+                cummulator = 0;
+                cummulator = Float.parseFloat(dCarb.getText().toString());
+                cummulator = cummulator + Float.parseFloat(details.get("Carb"));
+                dCarb.setText(df.format(cummulator));
+
+            }
+            if(key.equals("Supper"))
+            {
+                float cummulator = 0;
+                cummulator = Float.parseFloat(sPro.getText().toString());
+                cummulator = cummulator + Float.parseFloat(details.get("Protein"));
+                sPro.setText(df.format(cummulator));
+                cummulator = 0;
+                cummulator = Float.parseFloat(sCal.getText().toString());
+                cummulator = cummulator + Float.parseFloat(details.get("Calories"));
+                sCal.setText(df.format(cummulator));
+                cummulator = 0;
+                cummulator = Float.parseFloat(sFat.getText().toString());
+                cummulator = cummulator + Float.parseFloat(details.get("Fat"));
+                sFat.setText(df.format(cummulator));
+                cummulator = 0;
+                cummulator = Float.parseFloat(sCarb.getText().toString());
+                cummulator = cummulator + Float.parseFloat(details.get("Carb"));
+                sCarb.setText(df.format(cummulator));
+            }
+            if(key.equals("Snack"))
+            {
+                float cummulator = 0;
+                cummulator = Float.parseFloat(snPro.getText().toString());
+                cummulator = cummulator + Float.parseFloat(details.get("Protein"));
+                snPro.setText(df.format(cummulator));
+                cummulator = 0;
+                cummulator = Float.parseFloat(snCal.getText().toString());
+                cummulator = cummulator + Float.parseFloat(details.get("Calories"));
+                snCal.setText(df.format(cummulator));
+                cummulator = 0;
+                cummulator = Float.parseFloat(snFat.getText().toString());
+                cummulator = cummulator + Float.parseFloat(details.get("Fat"));
+                snFat.setText(df.format(cummulator));
+                cummulator = 0;
+                cummulator = Float.parseFloat(snCarb.getText().toString());
+                cummulator = cummulator + Float.parseFloat(details.get("Carb"));
+                snCarb.setText(df.format(cummulator));
+            }
+
+        }
+    }
+
+    void sumFood(){
+        DecimalFormat df = new DecimalFormat();
+        df.setMaximumFractionDigits(1);
+        float prot = 0;
+        float carb = 0;
+        float fat = 0;
+        float cal = 0;
+
+        prot = prot + Float.parseFloat(bPro.getText().toString());
+        prot = prot + Float.parseFloat(lPro.getText().toString());
+        prot = prot + Float.parseFloat(dPro.getText().toString());
+        prot = prot + Float.parseFloat(sPro.getText().toString());
+        prot = prot + Float.parseFloat(snPro.getText().toString());
+        tPro.setText(df.format(prot));
+        carb = carb + Float.parseFloat(bCarb.getText().toString());
+        carb = carb + Float.parseFloat(lCarb.getText().toString());
+        carb = carb + Float.parseFloat(dCarb.getText().toString());
+        carb = carb + Float.parseFloat(sCarb.getText().toString());
+        carb = carb + Float.parseFloat(snCarb.getText().toString());
+        tCarb.setText(df.format(carb));
+        fat = fat + Float.parseFloat(bFat.getText().toString());
+        fat = fat + Float.parseFloat(lFat.getText().toString());
+        fat = fat + Float.parseFloat(dFat.getText().toString());
+        fat = fat + Float.parseFloat(sFat.getText().toString());
+        fat = fat + Float.parseFloat(snFat.getText().toString());
+        tFat.setText(df.format(fat));
+        cal = cal + Float.parseFloat(bCal.getText().toString());
+        cal = cal + Float.parseFloat(lCal.getText().toString());
+        cal = cal + Float.parseFloat(dCal.getText().toString());
+        cal = cal + Float.parseFloat(sCal.getText().toString());
+        cal = cal + Float.parseFloat(snCal.getText().toString());
+        tCal.setText(String.valueOf((int) cal));
+    }
+
+    void updateFood(Map<String, Object> entry)
+    {
+        foodDetails = entry;
+        for(String key : entry.keySet())
+        {
+            calculateFood((Map) entry.get(key), key);
+        }
+        sumFood();
+    }
+
+    void readExercisesFirebase (DatabaseReference database)
+    {
+        database.child("Records").child(new SimpleDateFormat("ddMMyyyy").format(new Date())).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Map<String,Object> res = (Map<String, Object>) dataSnapshot.getValue();
+                if(dataSnapshot.exists()) {
+                    SortedSet<String> keys = new TreeSet<>(res.keySet());
+                    int previousSteps = 0;
+                    String previousTime = "00:00";
+                    SimpleDateFormat format = new SimpleDateFormat("HH:mm");
+                    Date date1 = new Date();
+                    Date date2 = new Date();
+                    int steps = 0;
+                    int hr = 0;
+                    double doubleExcals = 0;
+                    activityRecords.clear();
+
+                    for (String key : keys) {
+                        if(!key.equals("Food"))
+                        {
+                            Map<String, String> entry = (Map) res.get(key);
+                            activityRecords.put(key, entry);
+
+                            try {
+                                date1 = format.parse(previousTime);
+                                date2 = format.parse(key);
+                                previousTime = key;
+                            } catch (Exception e) {}
+
+                            long diff = date2.getTime() - date1.getTime();
+                            diff = diff / 60000;
+
+                            steps = Integer.parseInt(entry.get("Steps"));
+                            if (entry.get("Heart Rate") != null) {
+                                hr = Integer.parseInt(entry.get("Heart Rate"));
+                            } else {
+                                hr = 0;
+                            }
+
+                            if (hr > 80 && steps > previousSteps) {
+                                doubleExcals = (doubleExcals + ((calculateHR(diff, hr) + calculateSteps(steps - previousSteps)) / 2));
+                                previousSteps = steps;
+                            } else {
+                                if (hr > 80 || steps > previousSteps) {
+                                    if (hr > 80) {
+                                        doubleExcals = (doubleExcals + calculateHR(diff, hr));
+                                    } else {
+                                        doubleExcals = (doubleExcals + calculateSteps(steps - previousSteps));
+                                        previousSteps = steps;
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            updateFood((Map) res.get(key));
+                        }
+                    }
+                    excals = (int) doubleExcals;
+                    updateCals();
+                } else
+                {
+                    excals = 0;
+                    updateCals();
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
     }
 
     void activityDetail(){
@@ -259,35 +503,26 @@ public class bandManagement extends AppCompatActivity implements GoogleApiClient
         steps.setColor(0xFF56B7F1);
         heart.setColor(0xFF0DFFC1);
 
-        i.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot)
+        SortedSet<String> keys = new TreeSet<>(activityRecords.keySet());
+        for (String key : keys) {
+            Map<String, String> entry = (Map) activityRecords.get(key);
+            steps.addPoint(new ValueLinePoint(key, Integer.parseInt(entry.get("Steps"))));
+            if(entry.get("Heart Rate") != null) {
+                heart.addPoint(new ValueLinePoint(key, Integer.parseInt(entry.get("Heart Rate"))));
+            }
+            else
             {
-                Map<String,Object> res = (Map<String, Object>) dataSnapshot.getValue();
-                SortedSet<String> keys = new TreeSet<>(res.keySet());
-                for (String key : keys) {
-                    Map<String, String> entry = (Map) res.get(key);
-                    steps.addPoint(new ValueLinePoint(key, Integer.parseInt(entry.get("Steps"))));
-                    if(entry.get("Heart Rate") != null) {
-                        heart.addPoint(new ValueLinePoint(key, Integer.parseInt(entry.get("Heart Rate"))));
-                    }
-                    else
-                    {
-                        heart.addPoint(new ValueLinePoint(key, 0));
-                    }
-                }
-
-                mSteps.addSeries(steps);
-                mSteps.startAnimation();
-                mHeart.addSeries(heart);
-                mHeart.startAnimation();
+                heart.addPoint(new ValueLinePoint(key, 0));
             }
+        }
 
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
+        mSteps.addSeries(steps);
+        mSteps.startAnimation();
+        mHeart.addSeries(heart);
+        mHeart.startAnimation();
 
-            }
-        });
+
+
         dialog.show();
     }
 
@@ -296,13 +531,6 @@ public class bandManagement extends AppCompatActivity implements GoogleApiClient
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setContentView(R.layout.fragment_food_details);
         dialog.show();
-    }
-
-
-
-    void sendData(String results){
-        dRef = db.getReference("SimpleMessage");
-        dRef.setValue(results);
     }
 
 
@@ -341,61 +569,45 @@ public class bandManagement extends AppCompatActivity implements GoogleApiClient
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
 
     }
-    private void showDataSet(DataSet dataSet) {
-        if(!dataSet.isEmpty()) {
-            Value f = dataSet.getDataPoints().get(0).getValue(dataSet.getDataPoints().get(0).getDataType().getFields().get(0));
-            stepAmountFromGoogle = f.toString();
-        }
-        else
-        {
-            stepAmountFromGoogle = "0";
-        }
-        updateCals();
 
-    }
 
     private void updateCals(){
 
-        final int[] bodycals = new int[1];
-        int excals;
+        int bodycals = 0;
         int conscals;
         int totcals;
 
-        String stepsStr = stepAmountFromGoogle;
+        String testWeight = SaveSharedPreference.getPrefWeight(getApplicationContext());
+        String testHeight = SaveSharedPreference.getPrefHeight(getApplicationContext());
+
+        if(testHeight.isEmpty() || testWeight.isEmpty())
+        {
+            userPref();
+            Toast.makeText(getApplicationContext(), "Need to fill user details", Toast.LENGTH_SHORT).show();
+        }
+        else {
+            float weight = Float.parseFloat(SaveSharedPreference.getPrefWeight(getApplicationContext()));
+            float height = Float.parseFloat(SaveSharedPreference.getPrefHeight(getApplicationContext()));
 
 
+            bodycals = (int) (10 * weight + 6.25 * height - 5 * 22 + 5);
+            conscals = Integer.parseInt(tCal.getText().toString());
+            totcals = bodycals + this.excals - conscals;
 
-        bodycals[0] = (int) (10*weight[0] + 6.25*height[0] - 5*22 + 5);
-        excals = (55 * Integer.parseInt(stepsStr)) / 1250;
-        conscals = 1681;
-        totcals = bodycals[0] + excals - conscals;
+            mCircleView.setMaxValue(bodycals + this.excals);
+            mCircleView.setValue(conscals);
 
-        mCircleView.setMaxValue(bodycals[0] + excals);
-        mCircleView.setValue(1681);
+            mCircleView.setText(conscals + "/" + Integer.toString(bodycals + this.excals));
 
-        mCircleView.setText("1681/" + Integer.toString(bodycals[0] + excals));
-
-        bodyCal.setText(Integer.toString(bodycals[0]));
+            bodyCal.setText(Integer.toString(bodycals));
 
 
-        exerciseCal.setText(Integer.toString(excals));
-        consumedCal.setText(Integer.toString(conscals));
-        totalCal.setText(Integer.toString(totcals));
-
+            exerciseCal.setText(Integer.toString(this.excals));
+            consumedCal.setText(Integer.toString(conscals));
+            totalCal.setText(Integer.toString(totcals));
+        }
     }
 
-    public static Date getEndOfDay(Date date) {
-        LocalDateTime localDateTime = dateToLocalDateTime(date);
-        LocalDateTime endOfDay = localDateTime.with(LocalTime.MAX);
-        return localDateTimeToDate(endOfDay);
-    }
-
-    public static Date getStartOfDay(Date date) {
-        LocalDateTime localDateTime = dateToLocalDateTime(date);
-        LocalDateTime startOfDay = localDateTime.with(LocalTime.MIN);
-        //LocalDateTime startOfDay = localDateTime.atStartOfDay();
-        return localDateTimeToDate(startOfDay);
-    }
 
     private static Date localDateTimeToDate(LocalDateTime startOfDay) {
         return Date.from(startOfDay.atZone(ZoneId.systemDefault()).toInstant());
