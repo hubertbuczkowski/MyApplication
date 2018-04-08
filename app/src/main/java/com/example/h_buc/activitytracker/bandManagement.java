@@ -97,7 +97,7 @@ public class bandManagement extends AppCompatActivity implements GoogleApiClient
     TextView bodyCal, exerciseCal, consumedCal, totalCal;
     private FirebaseAuth mAuth = FirebaseAuth.getInstance();
     FirebaseUser currentUser;
-    LinearLayout ln;
+    LinearLayout ln1, ln2, ln3, ln4, ln5;
 
     TextView bPro, bCal, bFat, bCarb,
             lPro, lCal, lFat, lCarb,
@@ -156,10 +156,34 @@ public class bandManagement extends AppCompatActivity implements GoogleApiClient
         });
 
 
-        ln.setOnClickListener(new View.OnClickListener() {
+        ln1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                foodDetail();
+                foodDetail("Breakfast");
+            }
+        });
+        ln2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                foodDetail("Lunch");
+            }
+        });
+        ln3.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                foodDetail("Dinner");
+            }
+        });
+        ln4.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                foodDetail("Supper");
+            }
+        });
+        ln5.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                foodDetail("Snack");
             }
         });
 
@@ -215,7 +239,11 @@ public class bandManagement extends AppCompatActivity implements GoogleApiClient
         usrBtn = (ImageButton) findViewById(R.id.userSettings);
         logout = (ImageButton) findViewById(R.id.logout);
         addBtn = findViewById(R.id.addButton);
-        ln = findViewById(R.id.linearLayout);
+        ln1 = findViewById(R.id.linearBreakfast);
+        ln2 = findViewById(R.id.linearLunch);
+        ln3 = findViewById(R.id.linearDinner);
+        ln4 = findViewById(R.id.linearSupper);
+        ln5 = findViewById(R.id.linearSnack);
 
         //Food details
         bPro = findViewById(R.id.breakProt);
@@ -526,10 +554,12 @@ public class bandManagement extends AppCompatActivity implements GoogleApiClient
         dialog.show();
     }
 
-    void foodDetail(){
+    void foodDetail(String meal){
         final Dialog dialog = new Dialog(bandManagement.this);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setContentView(R.layout.fragment_food_details);
+        LinearLayout ln = dialog.findViewById(R.id.linearLayout2);
+
         dialog.show();
     }
 
@@ -608,12 +638,4 @@ public class bandManagement extends AppCompatActivity implements GoogleApiClient
         }
     }
 
-
-    private static Date localDateTimeToDate(LocalDateTime startOfDay) {
-        return Date.from(startOfDay.atZone(ZoneId.systemDefault()).toInstant());
-    }
-
-    private static LocalDateTime dateToLocalDateTime(Date date) {
-        return LocalDateTime.ofInstant(Instant.ofEpochMilli(date.getTime()), ZoneId.systemDefault());
-    }
 }

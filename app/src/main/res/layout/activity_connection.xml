@@ -317,6 +317,7 @@
                 </LinearLayout>
 
                 <LinearLayout
+                    android:id="@+id/linearBreakfast"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:orientation="horizontal">
@@ -377,6 +378,7 @@
                 </LinearLayout>
 
                 <LinearLayout
+                    android:id="@+id/linearLunch"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:orientation="horizontal">
@@ -437,6 +439,7 @@
                 </LinearLayout>
 
                 <LinearLayout
+                    android:id="@+id/linearDinner"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:orientation="horizontal">
@@ -497,6 +500,7 @@
                 </LinearLayout>
 
                 <LinearLayout
+                    android:id="@+id/linearSupper"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:orientation="horizontal">
@@ -557,6 +561,7 @@
                 </LinearLayout>
 
                 <LinearLayout
+                    android:id="@+id/linearSnack"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:orientation="horizontal">
