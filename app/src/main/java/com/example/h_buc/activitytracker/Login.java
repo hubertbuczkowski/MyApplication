@@ -26,6 +26,8 @@ public class Login extends AppCompatActivity {
     TextView user;
     TextView pass;
     private FirebaseAuth mAuth;
+    Button logBtn;
+    Button regBtn;
 
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -33,19 +35,11 @@ public class Login extends AppCompatActivity {
         setContentView(R.layout.activity_login);
         mAuth = FirebaseAuth.getInstance();
 
-        if(SaveSharedPreference.getUserName(getApplicationContext()).length() == 0)
-        {
-            System.out.println("User doesnt exist");
-        }
-        else
-        {
-            autoLogin(SaveSharedPreference.getUserName(getApplicationContext()), SaveSharedPreference.getPassword(getApplicationContext()));
-        }
         user = findViewById(R.id.UsernameText);
         pass = findViewById(R.id.PassText);
 
-        Button logBtn = (Button) findViewById(R.id.LoginBtn);
-        Button regBtn = (Button) findViewById(R.id.RegBtn);
+        logBtn = (Button) findViewById(R.id.LoginBtn);
+        regBtn = (Button) findViewById(R.id.RegBtn);
 
         logBtn.setOnClickListener(new View.OnClickListener()
         {
@@ -62,7 +56,25 @@ public class Login extends AppCompatActivity {
                 register();
             }
         });
+        authorize();
     }
+
+    protected void onResume(){
+        super.onResume();
+        authorize();
+    }
+
+    private void authorize(){
+        if(SaveSharedPreference.getUserName(getApplicationContext()).length() == 0)
+        {
+            System.out.println("User doesn't exist");
+        }
+        else
+        {
+            autoLogin(SaveSharedPreference.getUserName(getApplicationContext()), SaveSharedPreference.getPassword(getApplicationContext()));
+        }
+    }
+
 
     private boolean checkUser(String username, String password)
     {

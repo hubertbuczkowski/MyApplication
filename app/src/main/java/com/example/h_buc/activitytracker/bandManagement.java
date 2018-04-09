@@ -1,6 +1,7 @@
 package com.example.h_buc.activitytracker;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothAdapter;
@@ -9,6 +10,7 @@ import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothProfile;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -22,6 +24,7 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -53,6 +56,7 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
 import com.example.h_buc.activitytracker.Helpers.CustomBluetoothProfile;
+import com.example.h_buc.activitytracker.Helpers.FirebaseManagement;
 import com.example.h_buc.activitytracker.R;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.Scopes;
@@ -462,7 +466,7 @@ public class bandManagement extends AppCompatActivity implements GoogleApiClient
                     activityRecords.clear();
 
                     for (String key : keys) {
-                        if(!key.equals("Food"))
+                        if(!key.equals("Food") && !key.equals("Weight"))
                         {
                             Map<String, String> entry = (Map) res.get(key);
                             activityRecords.put(key, entry);
@@ -475,6 +479,11 @@ public class bandManagement extends AppCompatActivity implements GoogleApiClient
 
                             long diff = date2.getTime() - date1.getTime();
                             diff = diff / 60000;
+
+                            if(diff > 10)
+                            {
+                                diff = 10;
+                            }
 
                             steps = Integer.parseInt(entry.get("Steps"));
                             if (entry.get("Heart Rate") != null) {
@@ -499,7 +508,9 @@ public class bandManagement extends AppCompatActivity implements GoogleApiClient
                         }
                         else
                         {
-                            updateFood((Map) res.get(key));
+                            if(!key.equals("Weight")) {
+                                updateFood((Map) res.get(key));
+                            }
                         }
                     }
                     excals = (int) doubleExcals;
@@ -556,15 +567,23 @@ public class bandManagement extends AppCompatActivity implements GoogleApiClient
         dialog.show();
     }
 
-    void foodDetail(String meal){
+    void foodDetail(final String meal){
         final Dialog dialog = new Dialog(bandManagement.this);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setContentView(R.layout.fragment_food_details);
-        ListView ln = dialog.findViewById(R.id.foodListView);
+        final ListView ln = dialog.findViewById(R.id.foodListView);
+        Button add = dialog.findViewById(R.id.foodDialogAddButton);
+        TextView tx = dialog.findViewById(R.id.foodDialogType);
+        tx.setText(meal);
 
-        ArrayList<foodLinear> food = new ArrayList<foodLinear>();
+        final ArrayList<foodLinear> food = new ArrayList<foodLinear>();
+        foodLinearAdapter adapter;
 
-        Map<String, Object> prods = (Map) foodDetails.get(meal);
+        Map<String, Object> prods = null;
+        if(foodDetails != null)
+        {
+            prods = (Map) foodDetails.get(meal);
+        }
         if(prods != null)
         {
             for(String key : prods.keySet())
@@ -575,11 +594,47 @@ public class bandManagement extends AppCompatActivity implements GoogleApiClient
                 food.add(fl);
 
             }
-            foodLinearAdapter adapter = new foodLinearAdapter(this, food);
+            adapter = new foodLinearAdapter(this, food);
             ln.setAdapter(adapter);
         }
 
+        add.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                addFood(meal);
+            }
+        });
+
+        ln.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> adapterView, View view, final int i, long l) {
+                final AlertDialog.Builder builder = new AlertDialog.Builder(dialog.getContext());
+                builder.setTitle("What to do");
+                builder.setItems(new String[]{"Edit", "Delete"}, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog1, int which) {
+                        if (which == 1) {
+                            FirebaseManagement.deleteFood(meal, food.get(i).foodName, new SimpleDateFormat("ddMMyyyy").format(new Date()));
+                            food.remove(i);
+                            foodLinearAdapter fada = (foodLinearAdapter) ln.getAdapter();
+                            fada.notifyDataSetChanged();
+                        }
+                        if (which == 2) {
+                            Toast.makeText(dialog.getContext(), "Edit", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+                builder.create();
+                AlertDialog options = builder.create();
+                options.show();
+                return true;
+            }
+        });
+
         dialog.show();
+    }
+
+    void removeFood(){
+
     }
 
 
@@ -597,8 +652,9 @@ public class bandManagement extends AppCompatActivity implements GoogleApiClient
         startActivity(intent);
     }
 
-    void addFood(){
-        Intent intent = new Intent(bandManagement.this, searchFood.class);
+    void addFood(String meal){
+        Intent intent = new Intent(getApplicationContext(), searchFood.class);
+        intent.putExtra("Meal Type", meal);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
     }

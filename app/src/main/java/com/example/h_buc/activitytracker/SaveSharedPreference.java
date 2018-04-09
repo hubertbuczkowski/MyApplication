@@ -19,6 +19,7 @@ public class SaveSharedPreference
     static final String PREF_HEIGHT = "height";
     static final String PREF_WEIGHT = "weight";
     static final String PREF_GOAL = "goal";
+    static final String PREF_OPERATING_DATA = "goal";
 
     static SharedPreferences getSharedPreferences(Context ctx) {
         return PreferenceManager.getDefaultSharedPreferences(ctx);
@@ -41,6 +42,12 @@ public class SaveSharedPreference
         editor.putString(PREF_HEIGHT, height);
         editor.putString(PREF_WEIGHT, weight);
         editor.putInt(PREF_GOAL, goal);
+        editor.commit();
+    }
+
+    public static void setPrefWeight(Context ctx, String weight){
+        SharedPreferences.Editor editor = getSharedPreferences(ctx).edit();
+        editor.putString(PREF_WEIGHT, weight);
         editor.commit();
     }
 

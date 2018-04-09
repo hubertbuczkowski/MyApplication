@@ -37,7 +37,6 @@ public class foodLinearAdapter extends ArrayAdapter<foodLinear> {
         TextView weight = (TextView) convertView.findViewById(R.id.weight);
         TextView calories = (TextView) convertView.findViewById(R.id.calories);
         TextView name = (TextView) convertView.findViewById(R.id.prod);
-        ImageView delete =  convertView.findViewById(R.id.delete);
 
         protein.setText(food.proteins);
         carbs.setText(food.carbs);
@@ -45,13 +44,6 @@ public class foodLinearAdapter extends ArrayAdapter<foodLinear> {
         weight.setText(food.weight);
         calories.setText(food.cals);
         name.setText(food.foodName);
-        delete.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                foodLinearAdapter.this.remove(getItem(position));
-                foodLinearAdapter.this.notifyDataSetChanged();
-            }
-        });
         return convertView;
     }
 

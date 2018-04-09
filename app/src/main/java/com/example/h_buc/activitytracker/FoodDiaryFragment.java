@@ -1,21 +1,19 @@
 package com.example.h_buc.activitytracker;
 
 import android.app.Dialog;
-import android.content.Context;
 import android.content.Intent;
-import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.BottomSheetDialogFragment;
 import android.support.design.widget.CoordinatorLayout;
-import android.support.v4.app.Fragment;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
+import android.view.Window;
+import android.widget.Button;
 import android.widget.LinearLayout;
-import android.widget.TextView;
+import android.widget.NumberPicker;
+
+import com.example.h_buc.activitytracker.Helpers.FirebaseManagement;
+
+import java.text.DecimalFormat;
 
 
 public class FoodDiaryFragment extends BottomSheetDialogFragment {
@@ -87,7 +85,46 @@ public class FoodDiaryFragment extends BottomSheetDialogFragment {
         {
             public void onClick(View view)
             {
-                addFood("Weight");
+                final Dialog dialog = new Dialog(getActivity());
+                dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+                dialog.setContentView(R.layout.weight_picker);
+
+                String [] values = new String[1500];
+                double startingValue = 0;
+                DecimalFormat df = new DecimalFormat();
+                df.setMaximumFractionDigits(1);
+                for(int i = 0; i<1500; i++)
+                {
+                    values[i] = df.format(0.1*i);
+                    if(!values[i].contains("."))
+                    {
+                        values[i] = values[i] + ".0";
+                    }
+                }
+
+                Button bt = dialog.findViewById(R.id.dataPickerUpdate);
+                final NumberPicker nr = dialog.findViewById(R.id.numberPicker2);
+                nr.setMinValue(0);
+                nr.setMaxValue(values.length-1);
+                String weight = SaveSharedPreference.getPrefWeight(getContext());
+                float wt = Float.parseFloat(weight)*10;
+                nr.setValue((int) wt);
+                nr.setDisplayedValues(values);
+                nr.setWrapSelectorWheel(true);
+
+                bt.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        SaveSharedPreference.setPrefWeight(getContext(), String.valueOf(nr.getValue()/10.0));
+                        FirebaseManagement.setWeight(String.valueOf(nr.getValue()/10.0));
+                        dialog.dismiss();
+                    }
+                });
+
+
+
+                dialog.show();
+
             }
         });
 

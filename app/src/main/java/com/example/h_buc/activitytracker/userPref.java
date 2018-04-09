@@ -151,7 +151,7 @@ public class userPref extends AppCompatActivity {
                 if(dataSnapshot.exists())
                 {
                     String st = dataSnapshot.getValue().toString();
-                    if(st == "Male")
+                    if(st.equals("Male"))
                     {
                         male.setChecked(true);
                         female.setChecked(false);
@@ -203,10 +203,14 @@ public class userPref extends AppCompatActivity {
         {
             SaveSharedPreference.setDetails(getApplicationContext(), "Male", age.getText().toString(), fname.getText().toString(),
                     sname.getText().toString(), height.getText().toString(), weight.getText().toString(), sk.getProgress());
+            database.child("Gender").setValue("Male");
+
         }
         else{
             SaveSharedPreference.setDetails(getApplicationContext(), "Female", age.getText().toString(), fname.getText().toString(),
                     sname.getText().toString(), height.getText().toString(), weight.getText().toString(), sk.getProgress());
+            database.child("Gender").setValue("Female");
+
         }
     }
 

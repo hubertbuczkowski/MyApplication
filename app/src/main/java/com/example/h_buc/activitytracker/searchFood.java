@@ -1,12 +1,18 @@
 package com.example.h_buc.activitytracker;
 
+import android.annotation.SuppressLint;
 import android.app.Dialog;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.AsyncTask;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.SparseArray;
+import android.view.SurfaceHolder;
+import android.view.SurfaceView;
 import android.view.View;
 import android.view.Window;
 import android.widget.AdapterView;
@@ -15,10 +21,8 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 //import com.github.mikephil.charting.charts.PieChart;
 //import com.github.mikephil.charting.components.Legend;
@@ -29,6 +33,11 @@ import android.widget.Toast;
 //import com.github.mikephil.charting.highlight.Highlight;
 //import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
 
+import com.google.android.gms.vision.CameraSource;
+import com.google.android.gms.vision.Detector;
+import com.google.android.gms.vision.Frame;
+import com.google.android.gms.vision.barcode.Barcode;
+import com.google.android.gms.vision.barcode.BarcodeDetector;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -45,6 +54,7 @@ import org.json.JSONObject;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -66,9 +76,10 @@ public class searchFood extends AppCompatActivity {
     String titleString;
 
 
-//    PieChart pieChart;
+    //    PieChart pieChart;
     PieChart mPieChart;
     TextView title;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -77,15 +88,16 @@ public class searchFood extends AppCompatActivity {
         titleString = getIntent().getExtras().getString("Meal Type");
         title.setText(titleString);
 
-        String[] words=new String[] {
+        String[] words = new String[]{
                 "Chicken", "Chives", "Porridge", "word4", "word5"
         };
 
-        final AutoCompleteTextView autoSearch =  this.findViewById(R.id.searchAuto);
-        ArrayAdapter<String> aaStr = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line,words);
+        final AutoCompleteTextView autoSearch = this.findViewById(R.id.searchAuto);
+        ArrayAdapter<String> aaStr = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line, words);
         autoSearch.setAdapter(aaStr);
 
         ImageView searchBtn = findViewById(R.id.searchView);
+        ImageView barcodeBtn = findViewById(R.id.barcodeView);
         list = findViewById(R.id.SearchRes);
         list.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
         list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -106,14 +118,82 @@ public class searchFood extends AppCompatActivity {
 
         list.setAdapter(new ArrayAdapter(searchFood.this, android.R.layout.simple_list_item_1, searchResList));
 
-        searchBtn.setOnClickListener(new View.OnClickListener()
-        {
-            public void onClick(View view)
-            {
-                search( autoSearch.getText().toString() );
+        searchBtn.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                search(autoSearch.getText().toString());
             }
         });
 
+        barcodeBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startCamera();
+            }
+        });
+
+    }
+
+    SurfaceView cameraView;
+    CameraSource cameraSource;
+
+    private void startCamera() {
+        final Dialog dialog = new Dialog(searchFood.this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.camera_dialog);
+
+        cameraView = (SurfaceView) dialog.findViewById(R.id.camera_view);
+
+        BarcodeDetector barcodeDetector =
+                new BarcodeDetector.Builder(this)
+                        .setBarcodeFormats(Barcode.CODE_128)
+                        .build();
+
+        cameraSource = new CameraSource
+                .Builder(dialog.getContext(), barcodeDetector)
+                .setRequestedPreviewSize(640, 480)
+                .setAutoFocusEnabled(true)
+                .build();
+
+        cameraView.getHolder().addCallback(new SurfaceHolder.Callback() {
+            @Override
+            public void surfaceCreated(SurfaceHolder holder) {
+
+                try {
+                    if (ActivityCompat.checkSelfPermission(dialog.getContext(), android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                        return;
+                    }
+                    cameraSource.start(cameraView.getHolder());
+                } catch (IOException ie) {
+                }
+            }
+
+            @Override
+            public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+            }
+
+            @Override
+            public void surfaceDestroyed(SurfaceHolder holder) {
+                cameraSource.stop();
+            }
+        });
+        barcodeDetector.setProcessor(new Detector.Processor<Barcode>() {
+            @Override
+            public void release() {
+            }
+
+            @Override
+            public void receiveDetections(Detector.Detections<Barcode> detections) {
+
+                final SparseArray<Barcode> barcodes = detections.getDetectedItems();
+
+                if (barcodes.size() != 0) {
+                    System.out.print(barcodes.valueAt(0).displayValue);
+                    new itemData().execute("ups", barcodes.valueAt(0).displayValue);
+                    dialog.dismiss();
+                }
+            }
+        });
+        dialog.show();
     }
 
 
@@ -124,7 +204,7 @@ public class searchFood extends AppCompatActivity {
         dialog.setContentView(R.layout.activity_food_dialog);
 
         final EditText editGrams = dialog.findViewById(R.id.gramsConsumed);
-        final Button add = dialog.findViewById(R.id.foodDetailAdd);
+        final Button add = dialog.findViewById(R.id.update);
 
         add.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -184,6 +264,10 @@ public class searchFood extends AppCompatActivity {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 long count = dataSnapshot.getChildrenCount();
+                if(dataSnapshot.child("prod" + count).exists())
+                {
+                    count++;
+                }
                 database.child("prod" + count).child("Name").setValue(dialogMap.get("NAME"));
                 database.child("prod" + count).child("Id").setValue(dialogMap.get("ID"));
                 database.child("prod" + count).child("Weight").setValue(dialogMap.get("WEIGHT_INPUT"));
@@ -239,7 +323,7 @@ public class searchFood extends AppCompatActivity {
 
 
     void details(String str){
-        new itemData().execute(str);
+        new itemData().execute("item", str);
     }
 
     void search(String str){
@@ -255,6 +339,7 @@ public class searchFood extends AppCompatActivity {
         protected String doInBackground(String... args) {
 
             StringBuilder result = new StringBuilder();
+
             String addr = "https://api.nutritionix.com/v1_1/search/" + args[0].toString() + "?results=0%3A20&fields=item_name%2Cbrand_name%2Citem_id&appId=8ff256cf&appKey=+b21e4bba7884e8ae4e928b811afc0d5f";
 
             try {
@@ -311,7 +396,15 @@ public class searchFood extends AppCompatActivity {
         protected String doInBackground(String... args) {
 
             StringBuilder result = new StringBuilder();
-            String addr = "https://api.nutritionix.com/v1_1/item?id="+ args[0].toString() +"&appId=8ff256cf&appKey=b21e4bba7884e8ae4e928b811afc0d5f";
+            String addr = null;
+            if(args[1].toString().equals("item"))
+            {
+                addr = "https://api.nutritionix.com/v1_1/item?id="+ args[1].toString() +"&appId=8ff256cf&appKey=b21e4bba7884e8ae4e928b811afc0d5f";
+            }
+            else
+            {
+                addr = "https://api.nutritionix.com/v1_1/item?upc="+ args[1].toString() +"&appId=8ff256cf&appKey=b21e4bba7884e8ae4e928b811afc0d5f";
+            }
 
             try {
                 URL url = new URL(addr);
