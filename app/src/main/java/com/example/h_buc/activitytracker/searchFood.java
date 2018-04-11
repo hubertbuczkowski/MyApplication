@@ -23,6 +23,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 //import com.github.mikephil.charting.charts.PieChart;
 //import com.github.mikephil.charting.components.Legend;
@@ -33,6 +34,9 @@ import android.widget.TextView;
 //import com.github.mikephil.charting.highlight.Highlight;
 //import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
 
+import com.example.h_buc.activitytracker.Helpers.CheckConnection;
+import com.example.h_buc.activitytracker.Helpers.FirebaseManagement;
+import com.example.h_buc.activitytracker.Helpers.internalDatabaseManager;
 import com.google.android.gms.vision.CameraSource;
 import com.google.android.gms.vision.Detector;
 import com.google.android.gms.vision.Frame;
@@ -51,6 +55,7 @@ import org.eazegraph.lib.models.PieModel;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -59,6 +64,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -79,6 +85,7 @@ public class searchFood extends AppCompatActivity {
     //    PieChart pieChart;
     PieChart mPieChart;
     TextView title;
+    TextView txt;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -145,7 +152,7 @@ public class searchFood extends AppCompatActivity {
 
         BarcodeDetector barcodeDetector =
                 new BarcodeDetector.Builder(this)
-                        .setBarcodeFormats(Barcode.CODE_128)
+                        .setBarcodeFormats(Barcode.EAN_13)
                         .build();
 
         cameraSource = new CameraSource
@@ -205,6 +212,7 @@ public class searchFood extends AppCompatActivity {
 
         final EditText editGrams = dialog.findViewById(R.id.gramsConsumed);
         final Button add = dialog.findViewById(R.id.update);
+        txt = dialog.findViewById(R.id.textViewCalories);
 
         add.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -248,41 +256,44 @@ public class searchFood extends AppCompatActivity {
         tx.setText(dialogMap.get("NAME"));
 
         mPieChart.addPieSlice(new PieModel("Fat", Float.parseFloat(dialogMap.get("FAT")), Color.parseColor("#FF1944")));
-        mPieChart.addPieSlice(new PieModel("Protein", Float.parseFloat(dialogMap.get("CARBS")), Color.parseColor("#00B5FF")));
-        mPieChart.addPieSlice(new PieModel("Carbohydrates", Float.parseFloat(dialogMap.get("PROTEIN")), Color.parseColor("#CCC314")));
+        mPieChart.addPieSlice(new PieModel("Protein", Float.parseFloat(dialogMap.get("PROTEIN")), Color.parseColor("#00B5FF")));
+        mPieChart.addPieSlice(new PieModel("Carbohydrates", Float.parseFloat(dialogMap.get("CARBS")), Color.parseColor("#CCC314")));
+        txt.setText(dialogMap.get("CALORIES")+" cal");
+        if (dialogMap.get("WEIGHT") != "null") {
+            editGrams.setText(dialogMap.get("WEIGHT"));
+        }
+        else
+        {
+            editGrams.setText("100");
+        }
 
         mPieChart.startAnimation();
         dialog.show();
     }
 
     private void addFood(){
-        String date = new SimpleDateFormat("ddMMyyyy").format(new Date());
-        FirebaseAuth mAuth = FirebaseAuth.getInstance();
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        final DatabaseReference database = FirebaseDatabase.getInstance().getReference(currentUser.getUid()).child("Records").child(date).child("Food").child(titleString);
-        database.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                long count = dataSnapshot.getChildrenCount();
-                if(dataSnapshot.child("prod" + count).exists())
+        final String date = new SimpleDateFormat("ddMMyyyy").format(new Date());
+        final internalDatabaseManager db = new internalDatabaseManager(getApplicationContext());
+        new Thread(new Runnable() {
+            public void run() {
+                if(CheckConnection.InternetConnection())
                 {
-                    count++;
+                    FirebaseManagement.addFood(dialogMap.get("NAME"), dialogMap.get("ID"), dialogMap.get("WEIGHT_INPUT"), dialogMap.get("PROTEIN_INPUT"),
+                            dialogMap.get("CARBS_INPUT"), dialogMap.get("FAT_INPUT"), dialogMap.get("CALS_INPUT"), titleString);
+
+                    db.addMeal(date, dialogMap.get("ID"), dialogMap.get("NAME"), dialogMap.get("WEIGHT_INPUT"), dialogMap.get("PROTEIN_INPUT"),
+                            dialogMap.get("CARBS_INPUT"), dialogMap.get("FAT_INPUT"), dialogMap.get("CALS_INPUT"), titleString, true);
+
                 }
-                database.child("prod" + count).child("Name").setValue(dialogMap.get("NAME"));
-                database.child("prod" + count).child("Id").setValue(dialogMap.get("ID"));
-                database.child("prod" + count).child("Weight").setValue(dialogMap.get("WEIGHT_INPUT"));
-                database.child("prod" + count).child("Protein").setValue(dialogMap.get("PROTEIN_INPUT"));
-                database.child("prod" + count).child("Carb").setValue(dialogMap.get("CARBS_INPUT"));
-                database.child("prod" + count).child("Fat").setValue(dialogMap.get("FAT_INPUT"));
-                database.child("prod" + count).child("Calories").setValue(dialogMap.get("CALS_INPUT"));
-
+                else
+                {
+                    db.addMeal(date, dialogMap.get("ID"), dialogMap.get("NAME"), dialogMap.get("WEIGHT_INPUT"), dialogMap.get("PROTEIN_INPUT"),
+                            dialogMap.get("CARBS_INPUT"), dialogMap.get("FAT_INPUT"), dialogMap.get("CALS_INPUT"), titleString, false);
+                }
             }
+        }).start();
 
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
 
-            }
-        });
     }
 
 //
@@ -314,9 +325,10 @@ public class searchFood extends AppCompatActivity {
             dialogMap.put("PROTEIN_INPUT", String.valueOf(protein));
             mPieChart.addPieSlice(new PieModel("Protein", protein, Color.parseColor("#CCC314")));
         }
-        if (dialogMap.get("PROTEIN") != "null") {
+        if (dialogMap.get("CALORIES") != "null") {
             float cals = (Float.parseFloat(dialogMap.get("CALORIES")) * dividerInput) / divider;
             dialogMap.put("CALS_INPUT", String.valueOf(cals));
+            txt.setText(dialogMap.get("CALS_INPUT")+" cal");
         }
 
     }
@@ -397,7 +409,7 @@ public class searchFood extends AppCompatActivity {
 
             StringBuilder result = new StringBuilder();
             String addr = null;
-            if(args[1].toString().equals("item"))
+            if(args[0].toString().equals("item"))
             {
                 addr = "https://api.nutritionix.com/v1_1/item?id="+ args[1].toString() +"&appId=8ff256cf&appKey=b21e4bba7884e8ae4e928b811afc0d5f";
             }
@@ -445,7 +457,7 @@ public class searchFood extends AppCompatActivity {
                 //allergens !
                 createDialog();
             } catch (JSONException e) {
-                e.printStackTrace();
+                Toast.makeText(getApplicationContext(), "Item doesn't exist in database", Toast.LENGTH_SHORT).show();
             }
         }
     }

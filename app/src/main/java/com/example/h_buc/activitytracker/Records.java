@@ -5,6 +5,8 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import com.example.h_buc.activitytracker.Helpers.CheckConnection;
+import com.example.h_buc.activitytracker.Helpers.internalDatabaseManager;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.Scopes;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -20,6 +22,7 @@ import com.google.android.gms.fitness.request.DataReadRequest;
 import com.google.android.gms.fitness.result.DataReadResult;
 import com.google.firebase.database.DatabaseReference;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -107,15 +110,34 @@ public class Records implements GoogleApiClient.ConnectionCallbacks, GoogleApiCl
         final Date date = new Date();
         final String current_date = new SimpleDateFormat("ddMMyyyy").format(date);
         final String current_time = new SimpleDateFormat("HH:mm").format(date);
-
-        database.child("Records").child(current_date).child(current_time).child("Steps").setValue(this.steps);
+        final internalDatabaseManager db = new internalDatabaseManager(ctx);
 
         new Thread(new Runnable() {
             public void run() {
+                if(CheckConnection.InternetConnection())
+                {
+                    database.child("Records").child(current_date).child(current_time).child("Steps").setValue(steps);
+                    db.addRecord(current_date, current_time, "0", steps, true);
+                }
+                else
+                {
+                    db.addRecord(current_date, current_time, "0", steps, false);
+                }
+
                 bandController bd = new bandController();
                 bd.getBoundedDevice(ctx);
-                database.child("Records").child(current_date).child(current_time).child("Heart Rate").setValue(bd.startScanHeartRate(ctx));
-                System.out.println("tread executed");
+                String hr = bd.startScanHeartRate(ctx);
+
+                if(CheckConnection.InternetConnection())
+                {
+                    database.child("Records").child(current_date).child(current_time).child("Heart Rate").setValue(hr);
+                    db.updateHR(current_date, current_time, hr, steps, true);
+                }
+                else
+                {
+                    db.updateHR(current_date, current_time, hr, steps, false);
+                }
+
                 bd = null;
             }
         }).start();

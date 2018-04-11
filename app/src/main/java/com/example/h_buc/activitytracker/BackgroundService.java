@@ -20,13 +20,18 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.widget.Toast;
 
+import com.example.h_buc.activitytracker.Helpers.CheckConnection;
+import com.example.h_buc.activitytracker.Helpers.FirebaseManagement;
+import com.example.h_buc.activitytracker.Helpers.internalDatabaseManager;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.Map;
 import java.util.TimerTask;
 
 /**
@@ -37,6 +42,7 @@ public class BackgroundService extends Service {
 
     Records rc = new Records();
     Date currentDate = new Date();
+    internalDatabaseManager db;
 
     public int onStartCommand(Intent intent, int flags, int startId) {
         return START_STICKY;
@@ -48,7 +54,8 @@ public class BackgroundService extends Service {
 
     public void onCreate(){
         rc.Records(getApplicationContext());
-
+        db = new internalDatabaseManager(getApplicationContext());
+        synchronise();
         java.util.Timer t = new java.util.Timer();
         t.schedule(new TimerTask() {
             public void run() {
@@ -70,12 +77,35 @@ public class BackgroundService extends Service {
                 if(currentDate != new Date())
                 {
                     currentDate = new Date();
-                    rc.synchronise();
+                    synchronise();
                 }
 
                 rc.update(database, getApplicationContext());
             }
         });
+    }
+
+    private void synchronise(){
+        new Thread(new Runnable() {
+            public void run() {
+                if(CheckConnection.InternetConnection())
+                {
+                    ArrayList<Map<String, String>> records = db.getMissingRecords();
+                    ArrayList<Map<String, String>> food = db.getMissingFood();
+
+                    for(Map<String, String> entry : records)
+                    {
+                        FirebaseManagement.addRecord(entry.get("Date"), entry.get("Time"), entry.get("Heart Rate"), entry.get("Steps"));
+                    }
+
+                    for(Map<String, String> entry : food)
+                    {
+                        FirebaseManagement.addMissingFood(entry.get("Date"), entry.get("Name"), entry.get("Food Id"),entry.get("Weight"),entry.get("Protein"),
+                                entry.get("Carb"),entry.get("Fat"),entry.get("Calories"),entry.get("Meal"));
+                    }
+                }
+            }
+        }).start();
     }
 
 }

@@ -55,8 +55,10 @@ import java.util.TreeSet;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
+import com.example.h_buc.activitytracker.Helpers.CheckConnection;
 import com.example.h_buc.activitytracker.Helpers.CustomBluetoothProfile;
 import com.example.h_buc.activitytracker.Helpers.FirebaseManagement;
+import com.example.h_buc.activitytracker.Helpers.internalDatabaseManager;
 import com.example.h_buc.activitytracker.R;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.Scopes;
@@ -97,8 +99,6 @@ import at.grabner.circleprogress.TextMode;
 
 public class bandManagement extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
-    FirebaseDatabase db;
-    DatabaseReference dRef ;
     ImageButton usrBtn, logout;
     TextView bodyCal, exerciseCal, consumedCal, totalCal;
     private FirebaseAuth mAuth = FirebaseAuth.getInstance();
@@ -115,13 +115,9 @@ public class bandManagement extends AppCompatActivity implements GoogleApiClient
     CircleProgressView mCircleView;
     FloatingActionButton addBtn;
 
-    private BottomSheetBehavior mBottomSheetBehavior;
     BottomSheetDialogFragment bottomSheetDialogFragment;
 
-    int bodyCals;
     int excals;
-    int conscals;
-    int totcals;
     Map<String, Object> foodDetails;
     Map<String, Map<String, String>> activityRecords = new HashMap<>();
 
@@ -202,8 +198,15 @@ public class bandManagement extends AppCompatActivity implements GoogleApiClient
         super.onResume();
         Toast.makeText(getApplicationContext(), "resume", Toast.LENGTH_SHORT).show();
         resetData();
-        DatabaseReference database = FirebaseDatabase.getInstance().getReference(currentUser.getUid());
-        readExercisesFirebase(database);
+        if(checkSharedPreference())
+        {
+            readExerciseDatabase();
+            readFoodDatabase();
+            readFoodDatabase();
+        }
+        else{
+            userPref();
+        }
     }
 
     void resetData(){
@@ -296,16 +299,15 @@ public class bandManagement extends AppCompatActivity implements GoogleApiClient
         return steps  * 0.044;
     }
 
-    void calculateFood(Map<String, Object> prods, String key)
+    void calculateFood(Map<String, String> details, String key)
     {
         DecimalFormat df = new DecimalFormat();
         df.setMaximumFractionDigits(1);
-        for(String product : prods.keySet())
+        float cummulator = 0;
+
+        switch(key)
         {
-            Map<String, String> details = (Map) prods.get(product);
-            if(key.equals("Breakfast"))
-            {
-                float cummulator = 0;
+            case "Breakfast":
                 cummulator = Float.parseFloat(bPro.getText().toString());
                 cummulator = cummulator + Float.parseFloat(details.get("Protein"));
                 bPro.setText(df.format(cummulator));
@@ -321,10 +323,8 @@ public class bandManagement extends AppCompatActivity implements GoogleApiClient
                 cummulator = Float.parseFloat(bCarb.getText().toString());
                 cummulator = cummulator + Float.parseFloat(details.get("Carb"));
                 bCarb.setText(df.format(cummulator));
-            }
-            if(key.equals("Lunch"))
-            {
-                float cummulator = 0;
+                break;
+            case "Lunch":
                 cummulator = Float.parseFloat(lPro.getText().toString());
                 cummulator = cummulator + Float.parseFloat(details.get("Protein"));
                 lPro.setText(df.format(cummulator));
@@ -340,10 +340,8 @@ public class bandManagement extends AppCompatActivity implements GoogleApiClient
                 cummulator = Float.parseFloat(lCarb.getText().toString());
                 cummulator = cummulator + Float.parseFloat(details.get("Carb"));
                 lCarb.setText(df.format(cummulator));
-            }
-            if(key.equals("Dinner"))
-            {
-                float cummulator = 0;
+                break;
+            case "Dinner":
                 cummulator = Float.parseFloat(dPro.getText().toString());
                 cummulator = cummulator + Float.parseFloat(details.get("Protein"));
                 dPro.setText(df.format(cummulator));
@@ -359,11 +357,8 @@ public class bandManagement extends AppCompatActivity implements GoogleApiClient
                 cummulator = Float.parseFloat(dCarb.getText().toString());
                 cummulator = cummulator + Float.parseFloat(details.get("Carb"));
                 dCarb.setText(df.format(cummulator));
-
-            }
-            if(key.equals("Supper"))
-            {
-                float cummulator = 0;
+                break;
+            case "Supper":
                 cummulator = Float.parseFloat(sPro.getText().toString());
                 cummulator = cummulator + Float.parseFloat(details.get("Protein"));
                 sPro.setText(df.format(cummulator));
@@ -379,10 +374,8 @@ public class bandManagement extends AppCompatActivity implements GoogleApiClient
                 cummulator = Float.parseFloat(sCarb.getText().toString());
                 cummulator = cummulator + Float.parseFloat(details.get("Carb"));
                 sCarb.setText(df.format(cummulator));
-            }
-            if(key.equals("Snack"))
-            {
-                float cummulator = 0;
+                break;
+            case "Snack":
                 cummulator = Float.parseFloat(snPro.getText().toString());
                 cummulator = cummulator + Float.parseFloat(details.get("Protein"));
                 snPro.setText(df.format(cummulator));
@@ -398,8 +391,7 @@ public class bandManagement extends AppCompatActivity implements GoogleApiClient
                 cummulator = Float.parseFloat(snCarb.getText().toString());
                 cummulator = cummulator + Float.parseFloat(details.get("Carb"));
                 snCarb.setText(df.format(cummulator));
-            }
-
+                break;
         }
     }
 
@@ -437,107 +429,82 @@ public class bandManagement extends AppCompatActivity implements GoogleApiClient
         tCal.setText(String.valueOf((int) cal));
     }
 
-    void updateFood(Map<String, Object> entry)
-    {
-        foodDetails = entry;
-        for(String key : entry.keySet())
+    void readExerciseDatabase(){
+//        getApplicationContext().deleteDatabase("Lifestyle.Tracker.db");
+        internalDatabaseManager db = new internalDatabaseManager(getApplicationContext());
+
+        ArrayList<Map<String, String>> records = db.readRecords(new SimpleDateFormat("ddMMyyyy").format(new Date()));
+        String previousTime = "00:00";
+        SimpleDateFormat format = new SimpleDateFormat("HH:mm");
+        Date date1 = new Date();
+        Date date2 = new Date();
+        int previousSteps = 0;
+        int steps = 0;
+        int hr = 0;
+        double doubleExcals = 0;
+        activityRecords.clear();
+
+        for(Map<String, String> entry : records)
         {
-            calculateFood((Map) entry.get(key), key);
-        }
-        sumFood();
-    }
+            activityRecords.put(entry.get("Time"), entry);
+            try {
+                date1 = format.parse(previousTime);
+                date2 = format.parse(entry.get("Time"));
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
 
-    void readExercisesFirebase (DatabaseReference database)
-    {
-        database.child("Records").child(new SimpleDateFormat("ddMMyyyy").format(new Date())).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                Map<String,Object> res = (Map<String, Object>) dataSnapshot.getValue();
-                if(dataSnapshot.exists()) {
-                    SortedSet<String> keys = new TreeSet<>(res.keySet());
-                    int previousSteps = 0;
-                    String previousTime = "00:00";
-                    SimpleDateFormat format = new SimpleDateFormat("HH:mm");
-                    Date date1 = new Date();
-                    Date date2 = new Date();
-                    int steps = 0;
-                    int hr = 0;
-                    double doubleExcals = 0;
-                    activityRecords.clear();
+            long diff = date2.getTime() - date1.getTime();
+            diff = diff / 60000;
 
-                    for (String key : keys) {
-                        if(!key.equals("Food") && !key.equals("Weight"))
-                        {
-                            Map<String, String> entry = (Map) res.get(key);
-                            activityRecords.put(key, entry);
+            if(diff > 10)
+            {
+                diff = 10;
+            }
 
-                            try {
-                                date1 = format.parse(previousTime);
-                                date2 = format.parse(key);
-                                previousTime = key;
-                            } catch (Exception e) {}
+            steps = Integer.parseInt(entry.get("Steps"));
+            if (entry.get("Heart Rate") != null) {
+                hr = Integer.parseInt(entry.get("Heart Rate"));
+            } else {
+                hr = 0;
+            }
 
-                            long diff = date2.getTime() - date1.getTime();
-                            diff = diff / 60000;
-
-                            if(diff > 10)
-                            {
-                                diff = 10;
-                            }
-
-                            steps = Integer.parseInt(entry.get("Steps"));
-                            if (entry.get("Heart Rate") != null) {
-                                hr = Integer.parseInt(entry.get("Heart Rate"));
-                            } else {
-                                hr = 0;
-                            }
-
-                            if (hr > 80 && steps > previousSteps) {
-                                doubleExcals = (doubleExcals + ((calculateHR(diff, hr) + calculateSteps(steps - previousSteps)) / 2));
-                                previousSteps = steps;
-                            } else {
-                                if (hr > 80 || steps > previousSteps) {
-                                    if (hr > 80) {
-                                        doubleExcals = (doubleExcals + calculateHR(diff, hr));
-                                    } else {
-                                        doubleExcals = (doubleExcals + calculateSteps(steps - previousSteps));
-                                        previousSteps = steps;
-                                    }
-                                }
-                            }
-                        }
-                        else
-                        {
-                            if(!key.equals("Weight")) {
-                                updateFood((Map) res.get(key));
-                            }
-                        }
+            if (hr > 80 && steps > previousSteps) {
+                doubleExcals = (doubleExcals + ((calculateHR(diff, hr) + calculateSteps(steps - previousSteps)) / 2));
+                previousSteps = steps;
+            } else {
+                if (hr > 80 || steps > previousSteps) {
+                    if (hr > 80) {
+                        doubleExcals = (doubleExcals + calculateHR(diff, hr));
+                    } else {
+                        doubleExcals = (doubleExcals + calculateSteps(steps - previousSteps));
+                        previousSteps = steps;
                     }
-                    excals = (int) doubleExcals;
-                    updateCals();
-                } else
-                {
-                    excals = 0;
-                    updateCals();
                 }
             }
+        }
+        excals = (int) doubleExcals;
+        updateCals();
+    }
 
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
+    void readFoodDatabase(){
+        internalDatabaseManager db = new internalDatabaseManager(getApplicationContext());
+        ArrayList<Map<String, String>> records = db.readFood(new SimpleDateFormat("ddMMyyyy").format(new Date()));
 
-            }
-        });
+        for(Map<String, String> entry : records)
+        {
+            calculateFood(entry, entry.get("Meal"));
+        }
+        sumFood();
     }
 
     void activityDetail(){
         final Dialog dialog = new Dialog(bandManagement.this);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setContentView(R.layout.fragment_activity_details);
-        DatabaseReference database = FirebaseDatabase.getInstance().getReference(currentUser.getUid());
 
-        DatabaseReference i = database.child("Records").child("06032018");
-        final ValueLineChart mSteps = (ValueLineChart) dialog.findViewById(R.id.steps_timeline);
-        final ValueLineChart mHeart = (ValueLineChart) dialog.findViewById(R.id.heart_reate_timeline);
+        final ValueLineChart mSteps = dialog.findViewById(R.id.steps_timeline);
+        final ValueLineChart mHeart = dialog.findViewById(R.id.heart_reate_timeline);
 
         final ValueLineSeries steps = new ValueLineSeries();
         final ValueLineSeries heart = new ValueLineSeries();
@@ -561,8 +528,6 @@ public class bandManagement extends AppCompatActivity implements GoogleApiClient
         mSteps.startAnimation();
         mHeart.addSeries(heart);
         mHeart.startAnimation();
-
-
 
         dialog.show();
     }
@@ -613,7 +578,16 @@ public class bandManagement extends AppCompatActivity implements GoogleApiClient
                 builder.setItems(new String[]{"Edit", "Delete"}, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog1, int which) {
                         if (which == 1) {
-                            FirebaseManagement.deleteFood(meal, food.get(i).foodName, new SimpleDateFormat("ddMMyyyy").format(new Date()));
+                            new Thread(new Runnable() {
+                                public void run() {
+                                    internalDatabaseManager db = new internalDatabaseManager(getApplicationContext());
+                                    db.deleteMeal(meal, food.get(i).foodName, new SimpleDateFormat("ddMMyyyy").format(new Date()));
+                                    if(CheckConnection.InternetConnection()) {
+                                        FirebaseManagement.deleteFood(meal, food.get(i).foodName, new SimpleDateFormat("ddMMyyyy").format(new Date()));
+                                    }
+                                }
+                            }).start();
+
                             food.remove(i);
                             foodLinearAdapter fada = (foodLinearAdapter) ln.getAdapter();
                             fada.notifyDataSetChanged();
@@ -632,11 +606,6 @@ public class bandManagement extends AppCompatActivity implements GoogleApiClient
 
         dialog.show();
     }
-
-    void removeFood(){
-
-    }
-
 
     void userPref()
     {
@@ -675,6 +644,13 @@ public class bandManagement extends AppCompatActivity implements GoogleApiClient
 
     }
 
+    private boolean checkSharedPreference(){
+        if(SaveSharedPreference.getPrefGender(getApplicationContext()).isEmpty()){return false;}
+        if(SaveSharedPreference.getPrefWeight(getApplicationContext()).isEmpty()){return false;}
+        if(SaveSharedPreference.getPrefAge(getApplicationContext()).isEmpty()){return false;}
+        if(SaveSharedPreference.getPrefHeight(getApplicationContext()).isEmpty()){return false;}
+        return true;
+    }
 
     private void updateCals(){
 
@@ -693,9 +669,25 @@ public class bandManagement extends AppCompatActivity implements GoogleApiClient
         else {
             float weight = Float.parseFloat(SaveSharedPreference.getPrefWeight(getApplicationContext()));
             float height = Float.parseFloat(SaveSharedPreference.getPrefHeight(getApplicationContext()));
+            int age = Integer.parseInt(SaveSharedPreference.getPrefAge(getApplicationContext()));
 
 
-            bodycals = (int) (10 * weight + 6.25 * height - 5 * 22 + 5);
+            if(SaveSharedPreference.getPrefGender(getApplicationContext()).equals("Male"))
+            {
+                bodycals = (int) (10 * weight + 6.25 * height - 5 * age + 5);
+            }
+            else
+            {
+                bodycals = (int) (10 * weight + 6.25 * height - 5 * age - 161);
+            }
+            switch (SaveSharedPreference.getPrefGoal(getApplicationContext())){
+                case 0:
+                    bodycals = bodycals - 300;
+                    break;
+                case 2:
+                    bodycals = bodycals + 300;
+                    break;
+            }
             conscals = Integer.parseInt(tCal.getText().toString());
             totcals = bodycals + this.excals - conscals;
 

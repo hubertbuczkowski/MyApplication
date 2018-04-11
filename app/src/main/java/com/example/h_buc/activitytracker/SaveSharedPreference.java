@@ -51,6 +51,10 @@ public class SaveSharedPreference
         editor.commit();
     }
 
+    public static int getPrefGoal(Context ctx){
+        return getSharedPreferences(ctx).getInt(PREF_GOAL, -1);
+    }
+
     public static String getPrefWeight(Context ctx){
         return getSharedPreferences(ctx).getString(PREF_WEIGHT, "");
     }

@@ -51,4 +51,68 @@ public class FirebaseManagement {
         database.child("Records").child(new SimpleDateFormat("ddMMyyyy").format(new Date())).child("Weight").setValue(weight);
     }
 
+    public static void addFood(final String name, final String id, final String weight, final String protein, final String carbs, final String fat, final String cals, String titleString){
+        FirebaseAuth mAuth = FirebaseAuth.getInstance();
+        FirebaseUser currentUser  = mAuth.getCurrentUser();
+        String date = new SimpleDateFormat("ddMMyyyy").format(new Date());
+        final DatabaseReference database = FirebaseDatabase.getInstance().getReference(currentUser.getUid()).child("Records").child(date).child("Food").child(titleString);
+        database.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                long count = dataSnapshot.getChildrenCount();
+                while(dataSnapshot.child("prod" + count).exists())
+                {
+                    count++;
+                }
+                database.child("prod" + count).child("Name").setValue(name);
+                database.child("prod" + count).child("Id").setValue(id);
+                database.child("prod" + count).child("Weight").setValue(weight);
+                database.child("prod" + count).child("Protein").setValue(protein);
+                database.child("prod" + count).child("Carb").setValue(carbs);
+                database.child("prod" + count).child("Fat").setValue(fat);
+                database.child("prod" + count).child("Calories").setValue(cals);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+            }
+        });
+    }
+
+    public static void addMissingFood(final String date, final String name, final String id, final String weight, final String protein, final String carbs, final String fat, final String cals, String titleString){
+        FirebaseAuth mAuth = FirebaseAuth.getInstance();
+        FirebaseUser currentUser  = mAuth.getCurrentUser();
+        final DatabaseReference database = FirebaseDatabase.getInstance().getReference(currentUser.getUid()).child("Records").child(date).child("Food").child(titleString);
+        database.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                long count = dataSnapshot.getChildrenCount();
+                while(dataSnapshot.child("prod" + count).exists())
+                {
+                    count++;
+                }
+                database.child("prod" + count).child("Name").setValue(name);
+                database.child("prod" + count).child("Id").setValue(id);
+                database.child("prod" + count).child("Weight").setValue(weight);
+                database.child("prod" + count).child("Protein").setValue(protein);
+                database.child("prod" + count).child("Carb").setValue(carbs);
+                database.child("prod" + count).child("Fat").setValue(fat);
+                database.child("prod" + count).child("Calories").setValue(cals);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+            }
+        });
+    }
+
+    public static void addRecord(String date, String time, String hr, String steps){
+        FirebaseAuth mAuth = FirebaseAuth.getInstance();
+        FirebaseUser currentUser  = mAuth.getCurrentUser();
+        DatabaseReference database = FirebaseDatabase.getInstance().getReference(currentUser.getUid());
+
+        database.child("Records").child(date).child(time).child("Steps").setValue(steps);
+        database.child("Records").child(date).child(time).child("Heart Rate").setValue(hr);
+    }
+
 }

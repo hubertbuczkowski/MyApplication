@@ -12,6 +12,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.h_buc.activitytracker.Helpers.internalDatabaseManager;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -105,6 +106,7 @@ public class Login extends AppCompatActivity {
     {
         final String username = user.getText().toString().trim();
         final String password = pass.getText().toString().trim();
+        internalDatabaseManager db = new internalDatabaseManager(getApplicationContext());
 
         if(checkUser(username, password)) {
             mAuth.signInWithEmailAndPassword(username, password).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
