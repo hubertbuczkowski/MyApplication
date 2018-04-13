@@ -1,10 +1,11 @@
 package com.example.h_buc.activitytracker;
 
-import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.AsyncTask;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -25,37 +26,19 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-//import com.github.mikephil.charting.charts.PieChart;
-//import com.github.mikephil.charting.components.Legend;
-//import com.github.mikephil.charting.data.Entry;
-//import com.github.mikephil.charting.data.PieData;
-//import com.github.mikephil.charting.data.PieDataSet;
-//import com.github.mikephil.charting.data.PieEntry;
-//import com.github.mikephil.charting.highlight.Highlight;
-//import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
-
 import com.example.h_buc.activitytracker.Helpers.CheckConnection;
 import com.example.h_buc.activitytracker.Helpers.FirebaseManagement;
 import com.example.h_buc.activitytracker.Helpers.internalDatabaseManager;
 import com.google.android.gms.vision.CameraSource;
 import com.google.android.gms.vision.Detector;
-import com.google.android.gms.vision.Frame;
 import com.google.android.gms.vision.barcode.Barcode;
 import com.google.android.gms.vision.barcode.BarcodeDetector;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 import org.eazegraph.lib.charts.PieChart;
 import org.eazegraph.lib.models.PieModel;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.w3c.dom.Text;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -64,7 +47,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -81,8 +63,6 @@ public class searchFood extends AppCompatActivity {
     Map<String, String> dialogMap = new HashMap<>();
     String titleString;
 
-
-    //    PieChart pieChart;
     PieChart mPieChart;
     TextView title;
     TextView txt;
@@ -110,8 +90,6 @@ public class searchFood extends AppCompatActivity {
         list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-                //String tmp = searchResList.get(position);
-                //Toast.makeText(getApplicationContext(), searchMap.get(position).get(tmp), Toast.LENGTH_SHORT).show();
                 details(searchMap.get(position).get("ID"));
 
             }
@@ -134,7 +112,18 @@ public class searchFood extends AppCompatActivity {
         barcodeBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startCamera();
+                Handler handler = new Handler(Looper.getMainLooper());
+                handler.post(new Runnable() {
+                    public void run() {
+                        if(CheckConnection.InternetConnection()) {
+                            startCamera();
+                        }
+                        else
+                        {
+                            manualDialog("");
+                        }
+                    }
+                });
             }
         });
 
@@ -148,7 +137,7 @@ public class searchFood extends AppCompatActivity {
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setContentView(R.layout.camera_dialog);
 
-        cameraView = (SurfaceView) dialog.findViewById(R.id.camera_view);
+        cameraView = dialog.findViewById(R.id.camera_view);
 
         BarcodeDetector barcodeDetector =
                 new BarcodeDetector.Builder(this)
@@ -203,7 +192,85 @@ public class searchFood extends AppCompatActivity {
         dialog.show();
     }
 
+    private void manualDialog(String mealName) {
+        final Dialog dialog = new Dialog(searchFood.this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.manual_food_editor);
 
+        final EditText protein = dialog.findViewById(R.id.editProtein);
+        final EditText carbs = dialog.findViewById(R.id.editCarbs);
+        final EditText fat = dialog.findViewById(R.id.editFat);
+        final EditText calories = dialog.findViewById(R.id.editCalories);
+        final EditText weight = dialog.findViewById(R.id.editWeight);
+        final EditText name = dialog.findViewById(R.id.editName);
+        final Button cancel = dialog.findViewById(R.id.manualCancel);
+        final Button add = dialog.findViewById(R.id.manualAdd);
+
+        if(mealName != null)
+        {
+            name.setText(mealName);
+        }
+        add.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                int err = 0;
+                if(protein.getText().toString().isEmpty())
+                {
+                    err=1;
+                    protein.setError("This field cannot be empty");
+                }
+                if(carbs.getText().toString().isEmpty())
+                {
+                    err=1;
+                    carbs.setError("This field cannot be empty");
+                }
+                if(fat.getText().toString().isEmpty())
+                {
+                    err=1;
+                    fat.setError("This field cannot be empty");
+                }
+                if(calories.getText().toString().isEmpty())
+                {
+                    err=1;
+                    calories.setError("This field cannot be empty");
+                }
+
+                if(weight.getText().toString().isEmpty())
+                {
+                    err=1;
+                    weight.setError("This field cannot be empty");
+                }
+                if(name.getText().toString().isEmpty())
+                {
+                    err=1;
+                    name.setError("This field cannot be empty");
+                }
+                if(err == 0)
+                {
+                    int weightInt = Integer.parseInt(weight.getText().toString());
+                    dialogMap.put("PROTEIN_INPUT", String.valueOf((Float.parseFloat(protein.getText().toString())/100)*weightInt));
+                    dialogMap.put("CARBS_INPUT", String.valueOf((Float.parseFloat(carbs.getText().toString())/100)*weightInt));
+                    dialogMap.put("FAT_INPUT", String.valueOf((Float.parseFloat(fat.getText().toString())/100)*weightInt));
+                    dialogMap.put("CALS_INPUT", String.valueOf((Float.parseFloat(calories.getText().toString())/100)*weightInt));
+                    dialogMap.put("WEIGHT_INPUT", String.valueOf((Float.parseFloat(protein.getText().toString())/100)*weightInt));
+                    dialogMap.put("NAME", name.getText().toString());
+                    dialogMap.put("ID", "0");
+                    addFood();
+                    dialog.dismiss();
+                }
+            }
+        });
+        cancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.dismiss();
+            }
+        });
+        txt = dialog.findViewById(R.id.textViewCalories);
+
+
+        dialog.show();
+    }
 
     private void createDialog() {
         final Dialog dialog = new Dialog(searchFood.this);
@@ -296,7 +363,6 @@ public class searchFood extends AppCompatActivity {
 
     }
 
-//
     private void addDataSet() {
 
         float divider = 1;
@@ -333,14 +399,23 @@ public class searchFood extends AppCompatActivity {
 
     }
 
-
     void details(String str){
         new itemData().execute("item", str);
     }
 
-    void search(String str){
-        new urlData().execute(str);
-
+    void search(final String str){
+        Handler handler = new Handler(Looper.getMainLooper());
+        handler.post(new Runnable() {
+            public void run() {
+                if(CheckConnection.InternetConnection()) {
+                    new urlData().execute(str);
+                }
+                else
+                {
+                    manualDialog(str);
+                }
+            }
+        });
     }
 
     public class urlData extends AsyncTask<String, String, String> {

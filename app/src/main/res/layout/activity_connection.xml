@@ -17,7 +17,7 @@
             android:theme="?attr/actionBarTheme"
             app:layout_constraintEnd_toStartOf="@+id/userHistory"
             app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toEndOf="@+id/logout"
+            app:layout_constraintStart_toEndOf="@+id/historyBack"
             app:layout_constraintTop_toTopOf="parent" />
 
     <ImageButton
@@ -41,7 +41,7 @@
         app:srcCompat="@drawable/ic_account_circle_white_24dp" />
 
         <ImageButton
-            android:id="@+id/logout"
+            android:id="@+id/historyBack"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:background="?attr/colorPrimary"

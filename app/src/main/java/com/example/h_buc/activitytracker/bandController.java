@@ -7,29 +7,11 @@ import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothGattService;
-import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
-import android.view.View;
-import android.widget.ImageButton;
-
 import java.lang.reflect.Array;
-import java.util.Arrays;
 import java.util.Set;
-import java.util.UUID;
-
 import com.example.h_buc.activitytracker.Helpers.CustomBluetoothProfile;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 /**
  * Created by h_buc on 13/11/2017.
@@ -92,6 +74,7 @@ public class bandController {
         {
         }
         System.out.println("afterLoop");
+        this.lastHeartRate = this.lastHeartRate.replace("-", "");
         return this.lastHeartRate;
     }
 

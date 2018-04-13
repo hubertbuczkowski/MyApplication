@@ -247,7 +247,21 @@ public class internalDatabaseManager  extends SQLiteOpenHelper {
         values.put(HISTORY_FAT, rec.get("Fat"));
         values.put(HISTORY_CALS, rec.get("Calories"));
         values.put(HISTORY_TYPE, rec.get("Meal"));
-        values.put(HISTORY_SYNC, true);
+        if(rec.get("Sync").isEmpty())
+        {
+            values.put(HISTORY_SYNC, true);
+        }
+        else
+        {
+            if(rec.get("Sync") == "true")
+            {
+                values.put(HISTORY_SYNC, true);
+            }
+            else
+            {
+                values.put(HISTORY_SYNC, false);
+            }
+        }
 
         db.update(HISTORY_TABLE, values, "FoodName=? AND MealType=? AND Date=?", new String[]{rec.get("Name"), rec.get("Meal"), rec.get("Date")});
         db.close();

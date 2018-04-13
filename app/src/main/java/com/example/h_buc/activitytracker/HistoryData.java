@@ -5,7 +5,6 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.BottomSheetDialogFragment;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -50,7 +49,7 @@ import at.grabner.circleprogress.TextMode;
 
 public class HistoryData extends AppCompatActivity
 {
-    ImageButton usrBtn, logout;
+    ImageButton  hisBack;
     TextView bodyCal, exerciseCal, consumedCal, totalCal;
     private FirebaseAuth mAuth = FirebaseAuth.getInstance();
     FirebaseUser currentUser;
@@ -65,9 +64,6 @@ public class HistoryData extends AppCompatActivity
 
     CircleProgressView mCircleView;
     String workingDate;
-    FloatingActionButton addBtn;
-
-    BottomSheetDialogFragment bottomSheetDialogFragment;
 
     int excals;
     Map<String, Object> foodDetails;
@@ -124,6 +120,12 @@ public class HistoryData extends AppCompatActivity
                 foodDetail("Snack");
             }
         });
+        hisBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                back();
+            }
+        });
 
         Intent i = new Intent(this, BackgroundService.class);
 
@@ -172,7 +174,7 @@ public class HistoryData extends AppCompatActivity
         totalCal = findViewById(R.id.leftCals);
         mCircleView = findViewById(R.id.circleView);
         mCircleView.setTextMode(TextMode.TEXT);
-        logout = (ImageButton) findViewById(R.id.logout);
+        hisBack = findViewById(R.id.historyBack);
         ln1 = findViewById(R.id.linearBreakfast);
         ln2 = findViewById(R.id.linearLunch);
         ln3 = findViewById(R.id.linearDinner);
@@ -638,5 +640,11 @@ public class HistoryData extends AppCompatActivity
         mHeart.startAnimation();
 
         dialog.show();
+    }
+
+    void back(){
+        Intent intent = new Intent(getApplicationContext(), bandManagement.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
     }
 }

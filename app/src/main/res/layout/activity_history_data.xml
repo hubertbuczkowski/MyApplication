@@ -16,11 +16,11 @@
         android:minHeight="?attr/actionBarSize"
         android:theme="?attr/actionBarTheme"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/logout"
+        app:layout_constraintStart_toEndOf="@+id/historyBack"
         app:layout_constraintTop_toTopOf="parent" />
 
     <ImageButton
-        android:id="@+id/logout"
+        android:id="@+id/historyBack"
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:background="?attr/colorPrimary"

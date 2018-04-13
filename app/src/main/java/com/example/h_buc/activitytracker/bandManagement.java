@@ -1,27 +1,16 @@
 package com.example.h_buc.activitytracker;
 
-import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothGatt;
-import android.bluetooth.BluetoothGattCallback;
-import android.bluetooth.BluetoothGattCharacteristic;
-import android.bluetooth.BluetoothGattDescriptor;
-import android.bluetooth.BluetoothProfile;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.BottomSheetDialogFragment;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
-import android.text.Editable;
-import android.text.TextWatcher;
-import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.AdapterView;
@@ -34,62 +23,27 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.sql.Driver;
-import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
 
 import com.example.h_buc.activitytracker.Helpers.CheckConnection;
-import com.example.h_buc.activitytracker.Helpers.CustomBluetoothProfile;
 import com.example.h_buc.activitytracker.Helpers.FirebaseManagement;
 import com.example.h_buc.activitytracker.Helpers.internalDatabaseManager;
-import com.example.h_buc.activitytracker.R;
 import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.Scopes;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.PendingResult;
-import com.google.android.gms.common.api.ResultCallback;
-import com.google.android.gms.common.api.Scope;
-import com.google.android.gms.fitness.Fitness;
-import com.google.android.gms.fitness.data.Bucket;
-import com.google.android.gms.fitness.data.DataPoint;
-import com.google.android.gms.fitness.data.DataSet;
-import com.google.android.gms.fitness.data.DataSource;
-import com.google.android.gms.fitness.data.DataType;
-import com.google.android.gms.fitness.data.Field;
-import com.google.android.gms.fitness.data.Value;
-import com.google.android.gms.fitness.request.DataReadRequest;
-import com.google.android.gms.fitness.result.DailyTotalResult;
-import com.google.android.gms.fitness.result.DataReadResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 import org.eazegraph.lib.charts.ValueLineChart;
 import org.eazegraph.lib.models.ValueLinePoint;
 import org.eazegraph.lib.models.ValueLineSeries;
-import org.w3c.dom.Text;
 
 import at.grabner.circleprogress.CircleProgressView;
 import at.grabner.circleprogress.TextMode;
@@ -253,7 +207,7 @@ public class bandManagement extends AppCompatActivity implements GoogleApiClient
         mCircleView = findViewById(R.id.circleView);
         mCircleView.setTextMode(TextMode.TEXT);
         usrBtn = (ImageButton) findViewById(R.id.userSettings);
-        logout = (ImageButton) findViewById(R.id.logout);
+        logout = (ImageButton) findViewById(R.id.historyBack);
         addBtn = findViewById(R.id.addButton);
         ln1 = findViewById(R.id.linearBreakfast);
         ln2 = findViewById(R.id.linearLunch);
@@ -596,8 +550,8 @@ public class bandManagement extends AppCompatActivity implements GoogleApiClient
                             foodLinearAdapter fada = (foodLinearAdapter) ln.getAdapter();
                             fada.notifyDataSetChanged();
                         }
-                        if (which == 2) {
-                            Toast.makeText(dialog.getContext(), "Edit", Toast.LENGTH_SHORT).show();
+                        if (which == 0) {
+                            manualDialog(food.get(i), dialog.getContext(), meal);
                         }
                     }
                 });
@@ -616,6 +570,126 @@ public class bandManagement extends AppCompatActivity implements GoogleApiClient
         });
 
         dialog.show();
+    }
+
+    private void manualDialog(foodLinear meal, Context ctx, final String mealType) {
+        final Dialog dialog = new Dialog(ctx);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.manual_food_editor);
+
+        final EditText protein = dialog.findViewById(R.id.editProtein);
+        final EditText carbs = dialog.findViewById(R.id.editCarbs);
+        final EditText fat = dialog.findViewById(R.id.editFat);
+        final EditText calories = dialog.findViewById(R.id.editCalories);
+        final EditText weight = dialog.findViewById(R.id.editWeight);
+        final EditText name = dialog.findViewById(R.id.editName);
+        final Button cancel = dialog.findViewById(R.id.manualCancel);
+        final Button add = dialog.findViewById(R.id.manualAdd);
+
+        if(meal.foodName != null)
+        {
+            name.setText(meal.foodName);
+        }
+        if(meal.weight != null)
+        {
+            weight.setText(meal.weight);
+        }
+        if(meal.proteins != null)
+        {
+            protein.setText(meal.proteins);
+        }
+        if(meal.carbs != null)
+        {
+            carbs.setText(meal.carbs);
+        }
+        if(meal.fat != null)
+        {
+            fat.setText(meal.fat);
+        }
+        if(meal.cals != null)
+        {
+            calories.setText(meal.cals);
+        }
+        add.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                int err = 0;
+                if(protein.getText().toString().isEmpty())
+                {
+                    err=1;
+                    protein.setError("This field cannot be empty");
+                }
+                if(carbs.getText().toString().isEmpty())
+                {
+                    err=1;
+                    carbs.setError("This field cannot be empty");
+                }
+                if(fat.getText().toString().isEmpty())
+                {
+                    err=1;
+                    fat.setError("This field cannot be empty");
+                }
+                if(calories.getText().toString().isEmpty())
+                {
+                    err=1;
+                    calories.setError("This field cannot be empty");
+                }
+
+                if(weight.getText().toString().isEmpty())
+                {
+                    err=1;
+                    weight.setError("This field cannot be empty");
+                }
+                if(name.getText().toString().isEmpty())
+                {
+                    err=1;
+                    name.setError("This field cannot be empty");
+                }
+                if(err == 0)
+                {
+                    int weightInt = Integer.parseInt(weight.getText().toString());
+                    Map<String, String> dialogMap = new HashMap<>();
+                    dialogMap.put("Date", new SimpleDateFormat("ddMMyyyy").format(new Date()));
+                    dialogMap.put("Protein", String.valueOf((Float.parseFloat(protein.getText().toString())/100)*weightInt));
+                    dialogMap.put("Carb", String.valueOf((Float.parseFloat(carbs.getText().toString())/100)*weightInt));
+                    dialogMap.put("Fat", String.valueOf((Float.parseFloat(fat.getText().toString())/100)*weightInt));
+                    dialogMap.put("Calories", String.valueOf((Float.parseFloat(calories.getText().toString())/100)*weightInt));
+                    dialogMap.put("Weight", String.valueOf(Integer.parseInt(weight.getText().toString())));
+                    dialogMap.put("Name", name.getText().toString());
+                    dialogMap.put("Food Id", "01");
+                    dialogMap.put("Meal", mealType);
+                    updateMeal(dialogMap);
+                    dialog.dismiss();
+                }
+            }
+        });
+        cancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.dismiss();
+            }
+        });
+
+        dialog.show();
+    }
+
+    void updateMeal(final Map<String, String> dialogMap){
+        new Thread(new Runnable() {
+            public void run() {
+                internalDatabaseManager db = new internalDatabaseManager(getApplicationContext());
+                if(CheckConnection.InternetConnection()) {
+                    FirebaseManagement.updateFood(dialogMap.get("Name"), dialogMap.get("Food Id"), dialogMap.get("Weight"), dialogMap.get("Protein"),
+                            dialogMap.get("Carb"), dialogMap.get("Fat"), dialogMap.get("Calories"), dialogMap.get("Meal"), dialogMap.get("Date"));
+                    dialogMap.put("Sync", "true");
+                    db.updateMeal(dialogMap);
+                }
+                else
+                {
+                    dialogMap.put("Sync", "false");
+                    db.updateMeal(dialogMap);
+                }
+            }
+        }).start();
     }
 
     void userPref()
