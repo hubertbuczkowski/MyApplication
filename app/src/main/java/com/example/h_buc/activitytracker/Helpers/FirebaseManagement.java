@@ -115,4 +115,11 @@ public class FirebaseManagement {
         database.child("Records").child(date).child(time).child("Heart Rate").setValue(hr);
     }
 
+    public static void readAllRecords(String date){
+        FirebaseAuth mAuth = FirebaseAuth.getInstance();
+        FirebaseUser currentUser  = mAuth.getCurrentUser();
+        DatabaseReference database = FirebaseDatabase.getInstance().getReference(currentUser.getUid());
+    }
+
+
 }

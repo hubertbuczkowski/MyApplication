@@ -26,6 +26,7 @@ import android.view.View;
 import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -99,7 +100,7 @@ import at.grabner.circleprogress.TextMode;
 
 public class bandManagement extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
-    ImageButton usrBtn, logout;
+    ImageButton usrBtn, logout, history;
     TextView bodyCal, exerciseCal, consumedCal, totalCal;
     private FirebaseAuth mAuth = FirebaseAuth.getInstance();
     FirebaseUser currentUser;
@@ -118,7 +119,7 @@ public class bandManagement extends AppCompatActivity implements GoogleApiClient
     BottomSheetDialogFragment bottomSheetDialogFragment;
 
     int excals;
-    Map<String, Object> foodDetails;
+    ArrayList<Map<String, String>> foodDetails;
     Map<String, Map<String, String>> activityRecords = new HashMap<>();
 
     protected void onCreate(Bundle savedInstanceState)
@@ -189,6 +190,13 @@ public class bandManagement extends AppCompatActivity implements GoogleApiClient
             }
         });
 
+        history.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                history();
+            }
+        });
+
         Intent i = new Intent(this, BackgroundService.class);
 
         getApplicationContext().startService(i);
@@ -201,7 +209,6 @@ public class bandManagement extends AppCompatActivity implements GoogleApiClient
         if(checkSharedPreference())
         {
             readExerciseDatabase();
-            readFoodDatabase();
             readFoodDatabase();
         }
         else{
@@ -253,6 +260,7 @@ public class bandManagement extends AppCompatActivity implements GoogleApiClient
         ln3 = findViewById(R.id.linearDinner);
         ln4 = findViewById(R.id.linearSupper);
         ln5 = findViewById(R.id.linearSnack);
+        history = findViewById(R.id.userHistory);
 
         //Food details
         bPro = findViewById(R.id.breakProt);
@@ -484,18 +492,19 @@ public class bandManagement extends AppCompatActivity implements GoogleApiClient
             }
         }
         excals = (int) doubleExcals;
-        updateCals();
     }
 
     void readFoodDatabase(){
         internalDatabaseManager db = new internalDatabaseManager(getApplicationContext());
-        ArrayList<Map<String, String>> records = db.readFood(new SimpleDateFormat("ddMMyyyy").format(new Date()));
+        resetData();
+        foodDetails = db.readFood(new SimpleDateFormat("ddMMyyyy").format(new Date()));
 
-        for(Map<String, String> entry : records)
+        for(Map<String, String> entry : foodDetails)
         {
             calculateFood(entry, entry.get("Meal"));
         }
         sumFood();
+        updateCals();
     }
 
     void activityDetail(){
@@ -544,20 +553,15 @@ public class bandManagement extends AppCompatActivity implements GoogleApiClient
         final ArrayList<foodLinear> food = new ArrayList<foodLinear>();
         foodLinearAdapter adapter;
 
-        Map<String, Object> prods = null;
         if(foodDetails != null)
         {
-            prods = (Map) foodDetails.get(meal);
-        }
-        if(prods != null)
-        {
-            for(String key : prods.keySet())
+            for(Map<String, String> product : foodDetails)
             {
-                Map<String, String> product = (Map) prods.get(key);
-                foodLinear fl = new foodLinear(product.get("Name"),
-                        product.get("Weight"), product.get("Protein"), product.get("Carb"), product.get("Fat"), product.get("Calories"));
-                food.add(fl);
-
+                if(product.get("Meal").equals(meal)) {
+                    foodLinear fl = new foodLinear(product.get("Name"),
+                            product.get("Weight"), product.get("Protein"), product.get("Carb"), product.get("Fat"), product.get("Calories"));
+                    food.add(fl);
+                }
             }
             adapter = new foodLinearAdapter(this, food);
             ln.setAdapter(adapter);
@@ -578,16 +582,16 @@ public class bandManagement extends AppCompatActivity implements GoogleApiClient
                 builder.setItems(new String[]{"Edit", "Delete"}, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog1, int which) {
                         if (which == 1) {
+                            final internalDatabaseManager db = new internalDatabaseManager(getApplicationContext());
+                            final String foodname = food.get(i).foodName;
                             new Thread(new Runnable() {
                                 public void run() {
-                                    internalDatabaseManager db = new internalDatabaseManager(getApplicationContext());
-                                    db.deleteMeal(meal, food.get(i).foodName, new SimpleDateFormat("ddMMyyyy").format(new Date()));
+                                    db.deleteMeal(meal, foodname, new SimpleDateFormat("ddMMyyyy").format(new Date()));
                                     if(CheckConnection.InternetConnection()) {
-                                        FirebaseManagement.deleteFood(meal, food.get(i).foodName, new SimpleDateFormat("ddMMyyyy").format(new Date()));
+                                        FirebaseManagement.deleteFood(meal, foodname, new SimpleDateFormat("ddMMyyyy").format(new Date()));
                                     }
                                 }
                             }).start();
-
                             food.remove(i);
                             foodLinearAdapter fada = (foodLinearAdapter) ln.getAdapter();
                             fada.notifyDataSetChanged();
@@ -604,6 +608,13 @@ public class bandManagement extends AppCompatActivity implements GoogleApiClient
             }
         });
 
+        dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialogInterface) {
+                readFoodDatabase();
+            }
+        });
+
         dialog.show();
     }
 
@@ -612,6 +623,39 @@ public class bandManagement extends AppCompatActivity implements GoogleApiClient
         Intent intent = new Intent(bandManagement.this, userPref.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
+    }
+
+    void history(){
+        final Dialog dialog = new Dialog(bandManagement.this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.date_picker);
+
+        Button check = dialog.findViewById(R.id.historyConf);
+        final DatePicker dt = dialog.findViewById(R.id.datePicker);
+
+        check.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String day = String.valueOf(dt.getDayOfMonth());
+                String month = String.valueOf(dt.getMonth()+1);
+                String year = String.valueOf(dt.getYear());
+                if(day.length() == 1)
+                {
+                    day = "0"+day;
+                }
+
+                if(month.length() == 1)
+                {
+                    month = "0"+month;
+                }
+                Intent intent = new Intent(bandManagement.this, HistoryData.class);
+                intent.putExtra("Date", day+month+year);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent);
+            }
+        });
+
+        dialog.show();
     }
 
     void Logout(){
