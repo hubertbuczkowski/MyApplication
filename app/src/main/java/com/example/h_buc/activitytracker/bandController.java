@@ -17,6 +17,8 @@ import com.example.h_buc.activitytracker.Helpers.CustomBluetoothProfile;
  * Created by h_buc on 13/11/2017.
  */
 
+//This controller is gathering heart rate from database and sends back results to Record class
+
 public class bandController {
 
     volatile String bandAddress = null;
@@ -33,25 +35,25 @@ public class bandController {
 
     volatile Boolean isListeningHeartRate = false;
 
+    //find address of mi band 2
     public void getBoundedDevice(Context ctx) {
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         Set<BluetoothDevice> boundedDevice = bluetoothAdapter.getBondedDevices();
         for (BluetoothDevice bd : boundedDevice) {
             if (bd.getName().contains("MI Band 2")) {
-                //txtMac.setText(bd.getAddress());
                 this.bandAddress = bd.getAddress();
                 this.appContext = ctx;
-                //startConnecting();
             }
         }
     }
 
+    //connects to mi band
     public void startConnecting(){
         bluetoothDevice = bluetoothAdapter.getRemoteDevice(this.bandAddress);
         bluetoothGatt = bluetoothDevice.connectGatt(this.appContext, true, bluetoothGattCallback);
     }
 
-
+    //Start heart rate
     public String startScanHeartRate(Context ctx) {
         isListeningHeartRate = false;
         isConnected = 0;
@@ -69,36 +71,35 @@ public class bandController {
         bandController.this.readingStatus = 0;
         bluetoothGatt.writeCharacteristic(bchar);
 
-        System.out.println("beforeLoop");
         while(bandController.this.readingStatus == 0)
         {
         }
-        System.out.println("afterLoop");
         this.lastHeartRate = this.lastHeartRate.replace("-", "");
         return this.lastHeartRate;
     }
 
-    public String startScanHeartRate() {
-        while(isListeningHeartRate == false){}
-        BluetoothGattCharacteristic bchar = mBluetoothGattService.getCharacteristic(CustomBluetoothProfile.HeartRate.controlCharacteristic);
-        bchar.setValue(new byte[]{21, 2, 1});
-        bandController.this.readingStatus = 0;
-        bluetoothGatt.writeCharacteristic(bchar);
+//    public String startScanHeartRate() {
+//        while(isListeningHeartRate == false){}
+//        BluetoothGattCharacteristic bchar = mBluetoothGattService.getCharacteristic(CustomBluetoothProfile.HeartRate.controlCharacteristic);
+//        bchar.setValue(new byte[]{21, 2, 1});
+//        bandController.this.readingStatus = 0;
+//        bluetoothGatt.writeCharacteristic(bchar);
+//
+//        System.out.println("beforeLoop");
+//        while(bandController.this.readingStatus == 0)
+//        {
+//        }
+//        System.out.println("afterLoop");
+//        return this.lastHeartRate;
+//    }
 
-        System.out.println("beforeLoop");
-        while(bandController.this.readingStatus == 0)
-        {
-        }
-        System.out.println("afterLoop");
-        return this.lastHeartRate;
-    }
-
+    //send back last heart rate
     public void updateHR(String hr){
         this.lastHeartRate = hr;
         bandController.this.readingStatus = 1;
-        System.out.println(hr + " updated");
     }
 
+    //Write characteristics for reading heart rate data
     public void listenHeartRate(BluetoothGattService serv) {
         mBluetoothGattService = serv;
         BluetoothGattCharacteristic bchar = serv.getCharacteristic(CustomBluetoothProfile.HeartRate.measurementCharacteristic);
@@ -122,18 +123,16 @@ public class bandController {
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
             super.onConnectionStateChange(gatt, status, newState);
 
-            System.out.println("gatt changeds");
 
             if (newState == BluetoothProfile.STATE_CONNECTED) {
-                System.out.println("gatt connected");
                 stateConnected();
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
-                System.out.println("gatt disconnected");
                 stateDisconnected();
             }
 
         }
 
+        //Sygnalise if smart band is connected
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 listenHeartRate(bluetoothGatt.getService(CustomBluetoothProfile.HeartRate.service));
@@ -148,19 +147,17 @@ public class bandController {
         public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
             super.onCharacteristicRead(gatt, characteristic, status);
             byte[] data = characteristic.getValue();
-            System.out.println("Characteristic Read");
             updateHR(Array.get(data, 1).toString());
         }
 
         public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
             super.onCharacteristicWrite(gatt, characteristic, status);
-            System.out.println("Characteristic Write");
             byte[] data = characteristic.getValue();
         }
 
+        //send back heart rate read
         public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
             super.onCharacteristicChanged(gatt, characteristic);
-            System.out.println("Characteristic Change");
             byte[] data = characteristic.getValue();
             updateHR(Array.get(data, 1).toString());
         }
@@ -184,7 +181,6 @@ public class bandController {
 
         public void onMtuChanged(BluetoothGatt gatt, int mtu, int status) {
             super.onMtuChanged(gatt, mtu, status);
-            System.out.println("mtu changeds");
         }
 
     };

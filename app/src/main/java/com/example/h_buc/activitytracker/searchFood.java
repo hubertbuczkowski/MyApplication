@@ -4,8 +4,6 @@ import android.app.Dialog;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.AsyncTask;
-import android.os.Handler;
-import android.os.Looper;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -25,7 +23,6 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.example.h_buc.activitytracker.Helpers.CheckConnection;
 import com.example.h_buc.activitytracker.Helpers.FirebaseManagement;
 import com.example.h_buc.activitytracker.Helpers.internalDatabaseManager;
@@ -33,13 +30,11 @@ import com.google.android.gms.vision.CameraSource;
 import com.google.android.gms.vision.Detector;
 import com.google.android.gms.vision.barcode.Barcode;
 import com.google.android.gms.vision.barcode.BarcodeDetector;
-
 import org.eazegraph.lib.charts.PieChart;
 import org.eazegraph.lib.models.PieModel;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -54,7 +49,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-
 public class searchFood extends AppCompatActivity {
 
     ListView list;
@@ -66,6 +60,9 @@ public class searchFood extends AppCompatActivity {
     PieChart mPieChart;
     TextView title;
     TextView txt;
+
+    SurfaceView cameraView;
+    CameraSource cameraSource;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,6 +76,7 @@ public class searchFood extends AppCompatActivity {
                 "Chicken", "Chives", "Porridge", "Beef", "Egg"
         };
 
+        //add simple data for auto complete
         final AutoCompleteTextView autoSearch = this.findViewById(R.id.searchAuto);
         ArrayAdapter<String> aaStr = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line, words);
         autoSearch.setAdapter(aaStr);
@@ -95,6 +93,7 @@ public class searchFood extends AppCompatActivity {
             }
         });
 
+        //populate initial data in linear layout for better efficiency
         Map<String,String> temp = new HashMap<>();
         switch (titleString)
         {
@@ -227,9 +226,7 @@ public class searchFood extends AppCompatActivity {
 
     }
 
-    SurfaceView cameraView;
-    CameraSource cameraSource;
-
+    //open camera dialog with barcode scanner detector
     private void startCamera() {
         final Dialog dialog = new Dialog(searchFood.this);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -290,6 +287,8 @@ public class searchFood extends AppCompatActivity {
         dialog.show();
     }
 
+    //in case no internet connection, it allows user to enter data manually
+    //opens dialog for manual input
     private void manualDialog(String mealName) {
         final Dialog dialog = new Dialog(searchFood.this);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -370,6 +369,7 @@ public class searchFood extends AppCompatActivity {
         dialog.show();
     }
 
+    //open dialog with data from food database
     private void createDialog() {
         final Dialog dialog = new Dialog(searchFood.this);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -436,6 +436,7 @@ public class searchFood extends AppCompatActivity {
         dialog.show();
     }
 
+    //adds food details into databases
     private void addFood(){
         final String date = new SimpleDateFormat("ddMMyyyy").format(new Date());
         final internalDatabaseManager db = new internalDatabaseManager(getApplicationContext());
@@ -461,6 +462,7 @@ public class searchFood extends AppCompatActivity {
 
     }
 
+    //updates pie chart when user changes weight to show most up to date micro nutrients details
     private void addDataSet() {
 
         float divider = 1;
@@ -497,14 +499,17 @@ public class searchFood extends AppCompatActivity {
 
     }
 
+    //send url request to provide details of selected ingredient
     void details(String str){
         new itemData().execute("item", str);
     }
 
+    //send url request to search for specified by user ingredient
     void search(final String str){
         new urlData().execute(str);
     }
 
+    //send url search request and process response
     public class urlData extends AsyncTask<String, String, String[]> {
 
         HttpURLConnection urlConnection;
@@ -570,6 +575,7 @@ public class searchFood extends AppCompatActivity {
         }
     }
 
+    //send url request for item detailed data
     public class itemData extends AsyncTask<String, String, String> {
 
         HttpURLConnection urlConnection;
@@ -632,6 +638,8 @@ public class searchFood extends AppCompatActivity {
         }
     }
 
+    //checks connection with internet
+    //when there is no connection, it opens manual dialog
     public class connectionChecker extends AsyncTask<Void, Void, Boolean>{
 
         @Override

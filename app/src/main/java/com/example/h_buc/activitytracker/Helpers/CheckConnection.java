@@ -6,6 +6,7 @@ import java.net.InetAddress;
  * Created by h_buc on 11/04/2018.
  */
 
+//This class just check if phone has connection with internet
 public class CheckConnection {
 
     public static boolean InternetConnection(){

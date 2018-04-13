@@ -24,6 +24,11 @@ import java.util.TimerTask;
  * Created by h_buc on 27/02/2018.
  */
 
+// Service which works in background for whole time
+//    it is responsible for gathering heart rate and steps amount and writin them to database
+//
+//    it also displays notifications about chhecking weight and consuming food
+
 public class BackgroundService extends Service {
 
     Records rc = new Records();
@@ -50,6 +55,8 @@ public class BackgroundService extends Service {
         db = new internalDatabaseManager(getApplicationContext());
         synchronise();
         java.util.Timer t = new java.util.Timer();
+
+        //Starts looper which every 5 minutes gather data from smartband and Google FIT API and store on databases
         t.schedule(new TimerTask() {
             public void run() {
                 startSaving();
@@ -75,6 +82,8 @@ public class BackgroundService extends Service {
                     lunch = 0;
                     dinner = 0;
                     supper = 0;
+
+                    //Synchronise internal and external database every time when date changes
                     synchronise();
                 }
 
@@ -85,6 +94,7 @@ public class BackgroundService extends Service {
         });
     }
 
+    //Synchronisation process
     private void synchronise(){
         new Thread(new Runnable() {
             public void run() {
@@ -108,6 +118,7 @@ public class BackgroundService extends Service {
         }).start();
     }
 
+    //Create notifications with reminders
     private void checkNoti(){
         if(breakfast == 0)
         {

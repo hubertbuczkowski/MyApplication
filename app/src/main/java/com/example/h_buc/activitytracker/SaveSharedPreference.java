@@ -8,6 +8,9 @@ import android.preference.PreferenceManager;
  * Created by h_buc on 22/01/2018.
  */
 
+//this class created Shared Preference memory
+    //It contains only setters and getters
+
 public class SaveSharedPreference
 {
     static final String PREF_USER_NAME = "username";
@@ -19,7 +22,6 @@ public class SaveSharedPreference
     static final String PREF_HEIGHT = "height";
     static final String PREF_WEIGHT = "weight";
     static final String PREF_GOAL = "goal";
-    static final String PREF_OPERATING_DATA = "goal";
 
     static SharedPreferences getSharedPreferences(Context ctx) {
         return PreferenceManager.getDefaultSharedPreferences(ctx);

@@ -46,6 +46,8 @@ import at.grabner.circleprogress.TextMode;
  * Created by h_buc on 11/04/2018.
  */
 
+//this class behaves very similarly to main screen but instead of using data from internal database, it uses data from firebase
+
 public class HistoryData extends AppCompatActivity
 {
     ImageButton  hisBack;

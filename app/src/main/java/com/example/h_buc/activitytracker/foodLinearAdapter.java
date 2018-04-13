@@ -20,6 +20,8 @@ public class foodLinearAdapter extends ArrayAdapter<foodLinear> {
         super(context, 0, food);
     }
 
+    //linear view adapter which is responsible for updating data in meal detail dialog
+    //on main screen and history acivity
     public View getView(final int position, View convertView, ViewGroup parent) {
         // Get the data item for this position
         foodLinear food = getItem(position);
@@ -28,12 +30,12 @@ public class foodLinearAdapter extends ArrayAdapter<foodLinear> {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.food_linear_adapter, parent, false);
         }
         // Lookup view for data population
-        TextView protein = (TextView) convertView.findViewById(R.id.protein);
-        TextView carbs = (TextView) convertView.findViewById(R.id.carbs);
-        TextView fat = (TextView) convertView.findViewById(R.id.fat);
-        TextView weight = (TextView) convertView.findViewById(R.id.weight);
-        TextView calories = (TextView) convertView.findViewById(R.id.calories);
-        TextView name = (TextView) convertView.findViewById(R.id.prod);
+        TextView protein = convertView.findViewById(R.id.protein);
+        TextView carbs = convertView.findViewById(R.id.carbs);
+        TextView fat = convertView.findViewById(R.id.fat);
+        TextView weight = convertView.findViewById(R.id.weight);
+        TextView calories = convertView.findViewById(R.id.calories);
+        TextView name = convertView.findViewById(R.id.prod);
 
         protein.setText(food.proteins);
         carbs.setText(food.carbs);

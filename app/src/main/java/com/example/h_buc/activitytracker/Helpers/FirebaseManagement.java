@@ -17,12 +17,9 @@ import java.util.Date;
  * Created by h_buc on 09/04/2018.
  */
 
+//This class is responsible for modyfying data on firebase database
+
 public class FirebaseManagement {
-
-
-
-    void readAllRecords(){
-    }
 
     public static void deleteFood(String meal, String prod, String date){
         FirebaseAuth mAuth = FirebaseAuth.getInstance();

@@ -31,6 +31,7 @@ public class FoodDiaryFragment extends BottomSheetDialogFragment {
         }
     };
 
+    //opens bottom dialog with options to select specific meal to add
     public void setupDialog(Dialog dialog, int style) {
         super.setupDialog(dialog, style);
         View contentView = View.inflate(getContext(), R.layout.fragment_item_list_dialog, null);
@@ -81,6 +82,8 @@ public class FoodDiaryFragment extends BottomSheetDialogFragment {
                 addFood("Snack");
             }
         });
+
+        //this listener opens weight update dialog and add all data in there
         we.setOnClickListener(new View.OnClickListener()
         {
             public void onClick(View view)
@@ -134,6 +137,7 @@ public class FoodDiaryFragment extends BottomSheetDialogFragment {
         }
     }
 
+    //open adding food activity
     void addFood(String meal){
         Intent intent = new Intent(getActivity(), searchFood.class);
         intent.putExtra("Meal Type", meal);

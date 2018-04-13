@@ -33,6 +33,7 @@ public class userPref extends AppCompatActivity {
     RadioButton male, female;
 
     @SuppressLint("WrongViewCast")
+    //opens screen and initialise all fields
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
@@ -68,6 +69,7 @@ public class userPref extends AppCompatActivity {
         });
     }
 
+    //initialise all fields on the screen and load all user data from firebase
     void initialiseFields(){
         backBtn = findViewById(R.id.backArrow);
         sk = findViewById(R.id.seekBar);
@@ -191,6 +193,7 @@ public class userPref extends AppCompatActivity {
 
     }
 
+    //saves all changes in shared preference memory and on firebase
     void save()
     {
         DatabaseReference database = FirebaseDatabase.getInstance().getReference(currentUser.getUid());
@@ -215,11 +218,13 @@ public class userPref extends AppCompatActivity {
         }
     }
 
-    void back(){
-
+    //closes activity and moves back to main screen
+    void back()
+    {
         finish();
     }
 
+    //basing on slider, update textview on screen which defines user goal
     void seekChange(int i, TextView tx1){
         switch (i){
             case 0:

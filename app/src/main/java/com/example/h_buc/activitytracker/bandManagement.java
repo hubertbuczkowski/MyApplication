@@ -52,6 +52,8 @@ import at.grabner.circleprogress.TextMode;
  * Created by h_buc on 13/11/2017.
  */
 
+//Main class which is responsible for all display and calculations
+
 public class bandManagement extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
     ImageButton usrBtn, logout, history;
@@ -76,6 +78,7 @@ public class bandManagement extends AppCompatActivity implements GoogleApiClient
     ArrayList<Map<String, String>> foodDetails;
     Map<String, Map<String, String>> activityRecords = new HashMap<>();
 
+    //Start all listeners and is invoked once when activity is started
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
@@ -156,6 +159,7 @@ public class bandManagement extends AppCompatActivity implements GoogleApiClient
         getApplicationContext().startService(i);
     }
 
+    //invoke reading database data and updating screen data
     protected void onResume(){
         super.onResume();
         Toast.makeText(getApplicationContext(), "resume", Toast.LENGTH_SHORT).show();
@@ -170,6 +174,7 @@ public class bandManagement extends AppCompatActivity implements GoogleApiClient
         }
     }
 
+    //clear all data on the screen
     void resetData(){
         bPro.setText("0");
         bCal.setText("0");
@@ -197,6 +202,7 @@ public class bandManagement extends AppCompatActivity implements GoogleApiClient
         tCarb.setText("0");
     }
 
+    //initialise all screen elements
     void initialize(){
         bottomSheetDialogFragment = new FoodDiaryFragment();
         currentUser = mAuth.getCurrentUser();
@@ -243,6 +249,7 @@ public class bandManagement extends AppCompatActivity implements GoogleApiClient
         tCarb = findViewById(R.id.totalCarb);
     }
 
+    //calculate HR calories
     double calculateHR(long time, int hr)
     {
         int age = Integer.parseInt(SaveSharedPreference.getPrefAge(getApplicationContext()));
@@ -257,10 +264,13 @@ public class bandManagement extends AppCompatActivity implements GoogleApiClient
         }
     }
 
+    //calculate steps calories
     double calculateSteps(int steps){
         return steps  * 0.044;
     }
 
+    //update food data on the screen
+    //sums all micro nutrients for each specific meal type
     void calculateFood(Map<String, String> details, String key)
     {
         DecimalFormat df = new DecimalFormat();
@@ -357,6 +367,7 @@ public class bandManagement extends AppCompatActivity implements GoogleApiClient
         }
     }
 
+    //Sum all data in total amount on the screen
     void sumFood(){
         DecimalFormat df = new DecimalFormat();
         df.setMaximumFractionDigits(1);
@@ -391,8 +402,8 @@ public class bandManagement extends AppCompatActivity implements GoogleApiClient
         tCal.setText(String.valueOf((int) cal));
     }
 
+    //read activity data from the database
     void readExerciseDatabase(){
-//        getApplicationContext().deleteDatabase("Lifestyle.Tracker.db");
         internalDatabaseManager db = new internalDatabaseManager(getApplicationContext());
 
         ArrayList<Map<String, String>> records = db.readRecords(new SimpleDateFormat("ddMMyyyy").format(new Date()));
@@ -448,6 +459,7 @@ public class bandManagement extends AppCompatActivity implements GoogleApiClient
         excals = (int) doubleExcals;
     }
 
+    //read all consumed food data from database
     void readFoodDatabase(){
         internalDatabaseManager db = new internalDatabaseManager(getApplicationContext());
         resetData();
@@ -461,6 +473,8 @@ public class bandManagement extends AppCompatActivity implements GoogleApiClient
         updateCals();
     }
 
+    //read activity details and put them in graphs
+    //create dialog with graphs
     void activityDetail(){
         final Dialog dialog = new Dialog(bandManagement.this);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -495,6 +509,8 @@ public class bandManagement extends AppCompatActivity implements GoogleApiClient
         dialog.show();
     }
 
+    //display all details of clicked meal type
+    //also is responsible for opening meal editor, deleting meal and adding new meal
     void foodDetail(final String meal){
         final Dialog dialog = new Dialog(bandManagement.this);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -572,6 +588,7 @@ public class bandManagement extends AppCompatActivity implements GoogleApiClient
         dialog.show();
     }
 
+    //opens dialog where user can manually edit food details
     private void manualDialog(foodLinear meal, Context ctx, final String mealType) {
         final Dialog dialog = new Dialog(ctx);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -673,6 +690,7 @@ public class bandManagement extends AppCompatActivity implements GoogleApiClient
         dialog.show();
     }
 
+    //update edited details in databases
     void updateMeal(final Map<String, String> dialogMap){
         new Thread(new Runnable() {
             public void run() {
@@ -692,6 +710,7 @@ public class bandManagement extends AppCompatActivity implements GoogleApiClient
         }).start();
     }
 
+    //open user settings activity
     void userPref()
     {
         Intent intent = new Intent(bandManagement.this, userPref.class);
@@ -699,6 +718,7 @@ public class bandManagement extends AppCompatActivity implements GoogleApiClient
         startActivity(intent);
     }
 
+    //open date picker which open activity with past selected data
     void history(){
         final Dialog dialog = new Dialog(bandManagement.this);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -732,6 +752,7 @@ public class bandManagement extends AppCompatActivity implements GoogleApiClient
         dialog.show();
     }
 
+    //logs user out
     void Logout(){
         SaveSharedPreference.clear(getApplicationContext());
         Intent intent = new Intent(bandManagement.this, Login.class);
@@ -739,6 +760,7 @@ public class bandManagement extends AppCompatActivity implements GoogleApiClient
         startActivity(intent);
     }
 
+    //opens activity for adding food
     void addFood(String meal){
         Intent intent = new Intent(getApplicationContext(), searchFood.class);
         intent.putExtra("Meal Type", meal);
@@ -762,6 +784,7 @@ public class bandManagement extends AppCompatActivity implements GoogleApiClient
 
     }
 
+    //check if user has all data provided in user settings
     private boolean checkSharedPreference(){
         if(SaveSharedPreference.getPrefGender(getApplicationContext()).isEmpty()){return false;}
         if(SaveSharedPreference.getPrefWeight(getApplicationContext()).isEmpty()){return false;}
@@ -770,6 +793,7 @@ public class bandManagement extends AppCompatActivity implements GoogleApiClient
         return true;
     }
 
+    //update equation caloric details and graph
     private void updateCals(){
 
         int bodycals = 0;

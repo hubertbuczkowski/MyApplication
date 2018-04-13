@@ -36,6 +36,8 @@ import java.util.concurrent.TimeUnit;
  * Created by h_buc on 20/11/2017.
  */
 
+//This class is responsible for mannaging all heart rate, steps and storing them on both databases
+
 public class Records implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
     private String steps;
     private String heartRate;
@@ -43,20 +45,16 @@ public class Records implements GoogleApiClient.ConnectionCallbacks, GoogleApiCl
     DataSource ds;
     DataReadRequest req;
 
-    //bandController bd = new bandController();
-
     public void Records(Context ctx){
 
         this.steps = "0";
         this.heartRate = "65";
 
-        //bd.getBoundedDevice(ctx);
-
         setClients(ctx);
         update();
-        //mClient.disconnect();
     }
 
+    //define clients for Google Fit API
     private void setClients(Context ctx){
         mClient = new GoogleApiClient.Builder(ctx)
                 .addApi(Fitness.HISTORY_API)
@@ -74,24 +72,26 @@ public class Records implements GoogleApiClient.ConnectionCallbacks, GoogleApiCl
                 .build();
     }
 
+    //Send back number of steps
     public String getSteps()
     {
         return this.steps;
     }
 
+    //Send back heart rate
     public String getHeart()
     {
         return this.heartRate;
     }
 
+    //get end of the day time for Google fit
     public static Date getEndOfDay(Date date) {
         LocalDateTime localDateTime = dateToLocalDateTime(date);
         LocalDateTime endOfDay = localDateTime.with(LocalTime.MAX);
         return localDateTimeToDate(endOfDay);
     }
 
-
-
+    //Stores number of steps in variable
     private void showDataSet(DataSet dataSet) {
         if(!dataSet.isEmpty()) {
             Value f = dataSet.getDataPoints().get(0).getValue(dataSet.getDataPoints().get(0).getDataType().getFields().get(0));
@@ -103,6 +103,7 @@ public class Records implements GoogleApiClient.ConnectionCallbacks, GoogleApiCl
         }
     }
 
+    //upoad all data into internal and external database
     private void uploadData(DataSet dataSet, final DatabaseReference database, final Context ctx){
         showDataSet(dataSet);
 
@@ -142,8 +143,7 @@ public class Records implements GoogleApiClient.ConnectionCallbacks, GoogleApiCl
         }).start();
     }
 
-
-
+    //get Step data from google fit and invoke showDataSet
     public void update(){
         Calendar cal = Calendar.getInstance();
         Date now = new Date();
@@ -168,6 +168,7 @@ public class Records implements GoogleApiClient.ConnectionCallbacks, GoogleApiCl
         });
     }
 
+    //same as previous function but used in other place
     public void update(final DatabaseReference database, final Context ctx){
         Calendar cal = Calendar.getInstance();
         Date now = new Date();
@@ -193,21 +194,16 @@ public class Records implements GoogleApiClient.ConnectionCallbacks, GoogleApiCl
         });
     }
 
-
-
     @Override
     public void onConnected(@Nullable Bundle bundle) {
-
     }
 
     @Override
     public void onConnectionSuspended(int i) {
-
     }
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-
     }
 
     private static Date localDateTimeToDate(LocalDateTime startOfDay) {

@@ -4,24 +4,11 @@ package com.example.h_buc.activitytracker.Helpers;
  * Created by h_buc on 13/11/2017.
  */
 
+
+//Stores bluetooth codes for connection with smart band
 import java.util.UUID;
 
-/**
- * Created by aashari on 21/05/17.
- * This profile generated based on http://jellygom.com/2016/09/30/Mi-Band-UUID.html
- */
-
 public class CustomBluetoothProfile {
-
-    public static class Basic {
-        public static UUID service = UUID.fromString("0000fee0-0000-1000-8000-00805f9b34fb");
-        public static UUID batteryCharacteristic = UUID.fromString("00000006-0000-3512-2118-0009af100700");
-    }
-
-    public static class AlertNotification {
-        public static UUID service = UUID.fromString("00001802-0000-1000-8000-00805f9b34fb");
-        public static UUID alertCharacteristic = UUID.fromString("00002a06-0000-1000-8000-00805f9b34fb");
-    }
 
     public static class HeartRate {
         public static UUID service = UUID.fromString("0000180d-0000-1000-8000-00805f9b34fb");

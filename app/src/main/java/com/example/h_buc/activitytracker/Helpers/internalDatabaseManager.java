@@ -14,6 +14,9 @@ import java.util.Map;
  * Created by h_buc on 06/04/2018.
  */
 
+//This class makes changes in internal database
+//    all changes are made using this class
+
 public class internalDatabaseManager  extends SQLiteOpenHelper {
 
     private static final int DATABASE_VERSION = 1;

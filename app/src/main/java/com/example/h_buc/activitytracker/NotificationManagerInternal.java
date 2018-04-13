@@ -14,10 +14,11 @@ import static android.support.v4.app.NotificationCompat.DEFAULT_SOUND;
  * Created by h_buc on 13/04/2018.
  */
 
+//this class is responsible for creating notifications in application which display proper messages
+
 public class NotificationManagerInternal {
 
     public static void showNotification(Context ctx, String title, int i){
-
 
         String description;
         Intent intent = new Intent( ctx, searchFood.class);
@@ -41,8 +42,8 @@ public class NotificationManagerInternal {
         PendingIntent pendingIntent = PendingIntent.getActivity( ctx, 0, intent, 0);
 
         int notifyID = i;
-        String CHANNEL_ID = "my_channel_0"+i;// The id of the channel.
-        CharSequence name = "ChannelSample";// The user-visible name of the channel.
+        String CHANNEL_ID = "my_channel"+i;// The id of the channel.
+        CharSequence name = "ChannelSampleName";// The user-visible name of the channel.
         int importance = NotificationManager.IMPORTANCE_HIGH;
         NotificationChannel mChannel = new NotificationChannel(CHANNEL_ID, name, importance);
 

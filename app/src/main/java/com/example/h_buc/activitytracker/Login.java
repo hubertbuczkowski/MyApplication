@@ -28,6 +28,7 @@ public class Login extends AppCompatActivity {
     Button logBtn;
     Button regBtn;
 
+    //initialise fields
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
@@ -58,11 +59,13 @@ public class Login extends AppCompatActivity {
         authorize();
     }
 
+    //try to auto login user if data are stored in shared preferences
     protected void onResume(){
         super.onResume();
         authorize();
     }
 
+    //check if data are stored in shared preference memory
     private void authorize(){
         if(SaveSharedPreference.getUserName(getApplicationContext()).length() == 0)
         {
@@ -74,7 +77,7 @@ public class Login extends AppCompatActivity {
         }
     }
 
-
+    //check if all data are properly filled
     private boolean checkUser(String username, String password)
     {
         if(username.isEmpty())
@@ -100,6 +103,7 @@ public class Login extends AppCompatActivity {
         return true;
     }
 
+    //logs user in manually
     private void login()
     {
         final String username = user.getText().toString().trim();
@@ -125,6 +129,7 @@ public class Login extends AppCompatActivity {
         }
     }
 
+    //logs uer in automatically
     private void autoLogin(final String username, final String password)
     {
         if(checkUser(username, password))
@@ -149,6 +154,7 @@ public class Login extends AppCompatActivity {
         }
     }
 
+    //register user and login
     private void register()
     {
         String username = user.getText().toString().trim();

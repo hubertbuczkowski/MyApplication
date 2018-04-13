@@ -8,6 +8,7 @@ import java.text.DecimalFormat;
  * Created by h_buc on 08/04/2018.
  */
 
+//class for linear layout adapted
 public class foodLinear {
     String foodName;
     String weight;
