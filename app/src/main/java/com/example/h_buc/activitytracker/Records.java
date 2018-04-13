@@ -142,9 +142,6 @@ public class Records implements GoogleApiClient.ConnectionCallbacks, GoogleApiCl
         }).start();
     }
 
-    public void synchronise(){
-
-    }
 
 
     public void update(){

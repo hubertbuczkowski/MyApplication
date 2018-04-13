@@ -29,6 +29,13 @@ public class BackgroundService extends Service {
     Date currentDate = new Date();
     internalDatabaseManager db;
 
+    Date lastTime = new Date();
+
+    Boolean breakfast = false;
+    Boolean lunch = false;
+    Boolean dinner = false;
+    Boolean supper = false;
+
     public int onStartCommand(Intent intent, int flags, int startId) {
         return START_STICKY;
     }
@@ -62,10 +69,16 @@ public class BackgroundService extends Service {
                 if(currentDate != new Date())
                 {
                     currentDate = new Date();
+                    breakfast = false;
+                    lunch = false;
+                    dinner = false;
+                    supper = false;
                     synchronise();
                 }
 
                 rc.update(database, getApplicationContext());
+
+                checkNoti();
             }
         });
     }
@@ -91,6 +104,52 @@ public class BackgroundService extends Service {
                 }
             }
         }).start();
+    }
+
+    private void checkNoti(){
+        if(!breakfast)
+        {
+            String step =  rc.getSteps();
+            if(Integer.parseInt(step) > 0)
+            {
+                NotificationManagerInternal.showNotification(getApplicationContext(), "Breakfast", 1);
+                NotificationManagerInternal.showNotification(getApplicationContext(), "Weight", 2);
+                lastTime = new Date();
+                breakfast = true;
+            }
+        }
+        else
+        {
+            long diff = lastTime.getTime() - new Date().getTime();
+            diff = diff * 1000 * 60;
+            if(!lunch)
+            {
+                if(diff > 150)
+                {
+                    NotificationManagerInternal.showNotification(getApplicationContext(), "Lunch", 3);
+                    lastTime = new Date();
+                    lunch = true;
+                }
+            }
+            else if(!dinner)
+            {
+                if(diff > 150)
+                {
+                    NotificationManagerInternal.showNotification(getApplicationContext(), "Dinner", 4);
+                    lastTime = new Date();
+                    dinner = true;
+                }
+            }
+            else if(!supper)
+            {
+                if(diff > 150)
+                {
+                    NotificationManagerInternal.showNotification(getApplicationContext(), "Supper", 5);
+                    lastTime = new Date();
+                    supper = true;
+                }
+            }
+        }
     }
 
 }
