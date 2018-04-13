@@ -46,6 +46,7 @@ public class FirebaseManagement {
         DatabaseReference database = FirebaseDatabase.getInstance().getReference(currentUser.getUid());
 
         database.child("Records").child(new SimpleDateFormat("ddMMyyyy").format(new Date())).child("Weight").setValue(weight);
+        database.child("Weight").setValue(weight);
     }
 
     public static void addFood(final String name, final String id, final String weight, final String protein, final String carbs, final String fat, final String cals, String titleString){

@@ -135,7 +135,6 @@ public class HistoryData extends AppCompatActivity
 
     protected void onResume(){
         super.onResume();
-        Toast.makeText(getApplicationContext(), "resume", Toast.LENGTH_SHORT).show();
         resetData();
         readExercisesFirebase();
     }
@@ -497,10 +496,10 @@ public class HistoryData extends AppCompatActivity
             }
             switch (SaveSharedPreference.getPrefGoal(getApplicationContext())){
                 case 0:
-                    bodycals = bodycals - 300;
+                    bodycals = bodycals - 500;
                     break;
                 case 2:
-                    bodycals = bodycals + 300;
+                    bodycals = bodycals + 500;
                     break;
             }
             conscals = Integer.parseInt(tCal.getText().toString());

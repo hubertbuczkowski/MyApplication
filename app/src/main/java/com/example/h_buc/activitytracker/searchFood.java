@@ -179,11 +179,11 @@ public class searchFood extends AppCompatActivity {
                 searchResList.add("Pasta");
                 temp.put("ID", "56d9a58973232b6569114ef5");
                 searchMap.add(0, temp);
-                searchResList.add("513fceb775b8dbbc210031f9");
-                temp.put("ID", "Beef");
+                searchResList.add("Beef");
+                temp.put("ID", "513fceb775b8dbbc210031f9");
                 searchMap.add(0, temp);
-                searchResList.add("51c37c1297c3e6d272824fd5");
-                temp.put("ID", "Chicken");
+                searchResList.add("Chicken");
+                temp.put("ID", "51c37c1297c3e6d272824fd5");
                 searchMap.add(0, temp);
                 break;
             case "Snack":
