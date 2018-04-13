@@ -27,7 +27,6 @@
         android:background="?attr/colorPrimary"
         app:layout_constraintRight_toLeftOf="@+id/userSettings"
         app:layout_constraintStart_toEndOf="@+id/toolbar3"
-        app:layout_constraintTop_toTopOf="@+id/toolbar2"
         app:srcCompat="@drawable/ic_date_range_black_24dp" />
 
     <ImageButton
@@ -37,7 +36,6 @@
         android:background="?attr/colorPrimary"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintStart_toEndOf="@+id/userHistory"
-        app:layout_constraintTop_toTopOf="@+id/toolbar2"
         app:srcCompat="@drawable/ic_account_circle_white_24dp" />
 
         <ImageButton

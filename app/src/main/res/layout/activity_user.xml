@@ -25,7 +25,6 @@
         android:layout_height="50dp"
         android:background="@null"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/toolbar2"
         app:srcCompat="@drawable/ic_arrow_back_black_24dp" />
 
     <android.support.design.widget.TextInputLayout
