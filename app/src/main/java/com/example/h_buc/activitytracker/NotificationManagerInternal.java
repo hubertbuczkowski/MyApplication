@@ -5,12 +5,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Build;
 import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.NotificationManagerCompat;
-
-import static android.content.Context.NOTIFICATION_SERVICE;
-import static android.provider.Settings.Global.getString;
 import static android.support.v4.app.NotificationCompat.DEFAULT_ALL;
 import static android.support.v4.app.NotificationCompat.DEFAULT_LIGHTS;
 import static android.support.v4.app.NotificationCompat.DEFAULT_SOUND;

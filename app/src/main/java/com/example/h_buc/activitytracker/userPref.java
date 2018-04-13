@@ -187,6 +187,7 @@ public class userPref extends AppCompatActivity {
         });
 
         email.setText(currentUser.getEmail());
+        email.setFocusable(false);
 
     }
 

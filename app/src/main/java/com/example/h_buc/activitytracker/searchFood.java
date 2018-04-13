@@ -76,7 +76,7 @@ public class searchFood extends AppCompatActivity {
         title.setText(titleString);
 
         String[] words = new String[]{
-                "Chicken", "Chives", "Porridge", "word4", "word5"
+                "Chicken", "Chives", "Porridge", "Beef", "Egg"
         };
 
         final AutoCompleteTextView autoSearch = this.findViewById(R.id.searchAuto);
@@ -95,11 +95,120 @@ public class searchFood extends AppCompatActivity {
             }
         });
 
-        searchResList.add("Porrige");
-        searchResList.add("Egg");
-        searchResList.add("Bread");
-        searchResList.add("Butter");
-        searchResList.add("Milk");
+        Map<String,String> temp = new HashMap<>();
+        switch (titleString)
+        {
+            case "Breakfast":
+                searchResList.add("Porridge");
+                temp.put("ID", "5499dbf7e6dcce634c4693d5");
+                searchMap.add(0, temp);
+                searchResList.add("Egg");
+                temp.put("ID", "513fceb375b8dbbc21000152");
+                searchMap.add(1, temp);
+                searchResList.add("Bread");
+                temp.put("ID", "513fceb675b8dbbc210026a5");
+                searchMap.add(2, temp);
+                searchResList.add("Butter");
+                temp.put("ID", "513fceb375b8dbbc21000003");
+                searchMap.add(3, temp);
+                searchResList.add("Milk");
+                temp.put("ID", "513fceb375b8dbbc210000f1");
+                searchMap.add(4, temp);
+                break;
+            case "Lunch":
+                searchResList.add("Bread");
+                temp.put("ID", "513fceb675b8dbbc210026a5");
+                searchMap.add(0, temp);
+                searchResList.add("Butter");
+                temp.put("ID", "513fceb375b8dbbc21000003");
+                searchMap.add(1, temp);
+                searchResList.add("Porridge");
+                temp.put("ID", "5499dbf7e6dcce634c4693d5");
+                searchMap.add(2, temp);
+                searchResList.add("Egg");
+                temp.put("ID", "513fceb375b8dbbc21000152");
+                searchMap.add(3, temp);
+                searchResList.add("Sausage");
+                temp.put("ID", "463d623713c29a3885180c5e");
+                searchMap.add(4, temp);
+                searchResList.add("Beans");
+                temp.put("ID", "513fceb675b8dbbc21002189");
+                searchMap.add(5, temp);
+                searchResList.add("Rice");
+                temp.put("ID", "513fceb775b8dbbc21002e43");
+                searchMap.add(6, temp);
+                searchResList.add("Chicken");
+                temp.put("ID", "51c37c1297c3e6d272824fd5");
+                searchMap.add(7, temp);
+                break;
+            case "Dinner":
+                searchResList.add("Rice");
+                temp.put("ID", "513fceb775b8dbbc21002e43");
+                searchMap.add(0, temp);
+                searchResList.add("Chicken");
+                temp.put("ID", "51c37c1297c3e6d272824fd5");
+                searchMap.add(0, temp);
+                searchResList.add("Beef");
+                temp.put("ID", "513fceb775b8dbbc210031f9");
+                searchMap.add(0, temp);
+                searchResList.add("Potato");
+                temp.put("ID", "513fceb575b8dbbc210017d2");
+                searchMap.add(0, temp);
+                searchResList.add("Lettuce");
+                temp.put("ID", "513fceb575b8dbbc210015a0");
+                searchMap.add(0, temp);
+                searchResList.add("Pasta");
+                temp.put("ID", "56d9a58973232b6569114ef5");
+                searchMap.add(0, temp);
+                searchResList.add("Tomato");
+                temp.put("ID", "513fceb575b8dbbc21001743");
+                searchMap.add(0, temp);
+                break;
+            case "Supper":
+                searchResList.add("Pasta");
+                temp.put("ID", "56d9a58973232b6569114ef5");
+                searchMap.add(0, temp);
+                searchResList.add("Rice");
+                temp.put("ID", "513fceb775b8dbbc21002e43");
+                searchMap.add(0, temp);
+                searchResList.add("Sausage");
+                temp.put("ID", "463d623713c29a3885180c5e");
+                searchMap.add(0, temp);
+                searchResList.add("Pork");
+                temp.put("ID", "57cd18543f8b952b70e36da6");
+                searchMap.add(0, temp);
+                searchResList.add("Pasta");
+                temp.put("ID", "56d9a58973232b6569114ef5");
+                searchMap.add(0, temp);
+                searchResList.add("513fceb775b8dbbc210031f9");
+                temp.put("ID", "Beef");
+                searchMap.add(0, temp);
+                searchResList.add("51c37c1297c3e6d272824fd5");
+                temp.put("ID", "Chicken");
+                searchMap.add(0, temp);
+                break;
+            case "Snack":
+                searchResList.add("Apple");
+                temp.put("ID", "513fceb475b8dbbc21000f93");
+                searchMap.add(0, temp);
+                searchResList.add("Carrot");
+                temp.put("ID", "513fceb575b8dbbc210014e2");
+                searchMap.add(0, temp);
+                searchResList.add("Protein bar");
+                temp.put("ID", "5631369e517dab4c12db31de");
+                searchMap.add(0, temp);
+                searchResList.add("Orange");
+                temp.put("ID", "513fceb575b8dbbc210010bf");
+                searchMap.add(0, temp);
+                searchResList.add("Grapes");
+                temp.put("ID", "513fceb575b8dbbc21001054");
+                searchMap.add(0, temp);
+                searchResList.add("Pineapple");
+                temp.put("ID", "513fceb575b8dbbc21001132");
+                searchMap.add(0, temp);
+                break;
+        }
+
 
         list.setAdapter(new ArrayAdapter(searchFood.this, android.R.layout.simple_list_item_1, searchResList));
 
@@ -112,18 +221,7 @@ public class searchFood extends AppCompatActivity {
         barcodeBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Handler handler = new Handler(Looper.getMainLooper());
-                handler.post(new Runnable() {
-                    public void run() {
-                        if(CheckConnection.InternetConnection()) {
-                            startCamera();
-                        }
-                        else
-                        {
-                            manualDialog("");
-                        }
-                    }
-                });
+                new connectionChecker().execute();
             }
         });
 
@@ -404,73 +502,70 @@ public class searchFood extends AppCompatActivity {
     }
 
     void search(final String str){
-        Handler handler = new Handler(Looper.getMainLooper());
-        handler.post(new Runnable() {
-            public void run() {
-                if(CheckConnection.InternetConnection()) {
-                    new urlData().execute(str);
-                }
-                else
-                {
-                    manualDialog(str);
-                }
-            }
-        });
+        new urlData().execute(str);
     }
 
-    public class urlData extends AsyncTask<String, String, String> {
+    public class urlData extends AsyncTask<String, String, String[]> {
 
         HttpURLConnection urlConnection;
 
         @Override
-        protected String doInBackground(String... args) {
+        protected String[] doInBackground(String... args) {
+            if(CheckConnection.InternetConnection()) {
+                StringBuilder result = new StringBuilder();
 
-            StringBuilder result = new StringBuilder();
+                String addr = "https://api.nutritionix.com/v1_1/search/" + args[0].toString() + "?results=0%3A20&fields=item_name%2Cbrand_name%2Citem_id&appId=8ff256cf&appKey=+b21e4bba7884e8ae4e928b811afc0d5f";
 
-            String addr = "https://api.nutritionix.com/v1_1/search/" + args[0].toString() + "?results=0%3A20&fields=item_name%2Cbrand_name%2Citem_id&appId=8ff256cf&appKey=+b21e4bba7884e8ae4e928b811afc0d5f";
+                try {
+                    URL url = new URL(addr);
+                    urlConnection = (HttpURLConnection) url.openConnection();
+                    InputStream in = new BufferedInputStream(urlConnection.getInputStream());
 
-            try {
-                URL url = new URL(addr);
-                urlConnection = (HttpURLConnection) url.openConnection();
-                InputStream in = new BufferedInputStream(urlConnection.getInputStream());
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(in));
 
-                BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        result.append(line);
+                    }
 
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    result.append(line);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    urlConnection.disconnect();
                 }
-
-            }catch( Exception e) {
-                e.printStackTrace();
+                return new String[] {result.toString()};
             }
-            finally {
-                urlConnection.disconnect();
+            else
+            {
+                return new String[] {"Error", args[0].toString()};
             }
-            return result.toString();
         }
 
         @Override
-        protected void onPostExecute(String result) {
-            searchResList.clear();
-            searchMap.clear();
-            try {
-                JSONArray json = new JSONObject(result).getJSONArray("hits");
-                for(int i=0; i<json.length(); i++)
-                {
-                    JSONObject jsonTemp = json.getJSONObject(i).getJSONObject("fields");
-                    if(!searchResList.contains(jsonTemp.getString("item_name")))
-                    {
-                        Map<String, String> tempMap = new HashMap<>();
-                        searchResList.add(jsonTemp.getString("item_name"));
-                        tempMap.put("ID", jsonTemp.getString("item_id"));
-                        tempMap.put("NAME", jsonTemp.getString("item_name"));
-                        searchMap.add(tempMap);
+        protected void onPostExecute(String[] result) {
+            if(!result[0].equals("Error")) {
+                searchResList.clear();
+                searchMap.clear();
+                try {
+                    JSONArray json = new JSONObject(result[0]).getJSONArray("hits");
+                    for (int i = 0; i < json.length(); i++) {
+                        JSONObject jsonTemp = json.getJSONObject(i).getJSONObject("fields");
+                        if (!searchResList.contains(jsonTemp.getString("item_name"))) {
+                            Map<String, String> tempMap = new HashMap<>();
+                            searchResList.add(jsonTemp.getString("item_name"));
+                            tempMap.put("ID", jsonTemp.getString("item_id"));
+                            tempMap.put("NAME", jsonTemp.getString("item_name"));
+                            searchMap.add(tempMap);
+                        }
                     }
+                    list.setAdapter(new ArrayAdapter(searchFood.this, android.R.layout.simple_list_item_1, searchResList));
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
-                list.setAdapter(new ArrayAdapter(searchFood.this, android.R.layout.simple_list_item_1, searchResList));
-            } catch (JSONException e) {
-                e.printStackTrace();
+            }
+            else
+            {
+                manualDialog(result[1]);
             }
         }
     }
@@ -536,5 +631,28 @@ public class searchFood extends AppCompatActivity {
             }
         }
     }
+
+    public class connectionChecker extends AsyncTask<Void, Void, Boolean>{
+
+        @Override
+        public Boolean doInBackground(Void... params) {
+            return CheckConnection.InternetConnection();
+        }
+
+
+        @Override
+        protected void onPostExecute(Boolean result) {
+            if(result)
+            {
+                startCamera();
+            }
+            else
+            {
+                manualDialog("");
+            }
+        }
+    }
+
+
 }
 

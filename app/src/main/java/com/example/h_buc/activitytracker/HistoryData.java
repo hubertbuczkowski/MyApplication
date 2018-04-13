@@ -5,7 +5,6 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.Window;
@@ -525,6 +524,7 @@ public class HistoryData extends AppCompatActivity
         dialog.setContentView(R.layout.fragment_food_details);
         final ListView ln = dialog.findViewById(R.id.foodListView);
         Button add = dialog.findViewById(R.id.foodDialogAddButton);
+        add.setVisibility(View.INVISIBLE);
         TextView tx = dialog.findViewById(R.id.foodDialogType);
         tx.setText(meal);
 

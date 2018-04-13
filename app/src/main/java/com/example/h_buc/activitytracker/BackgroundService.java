@@ -14,6 +14,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Map;
@@ -26,15 +27,15 @@ import java.util.TimerTask;
 public class BackgroundService extends Service {
 
     Records rc = new Records();
-    Date currentDate = new Date();
+    volatile Date currentDate = new Date();
     internalDatabaseManager db;
 
-    Date lastTime = new Date();
+    volatile Date lastTime = new Date();
 
-    Boolean breakfast = false;
-    Boolean lunch = false;
-    Boolean dinner = false;
-    Boolean supper = false;
+    volatile int breakfast = 0;
+    volatile int lunch = 0;
+    volatile int dinner = 0;
+    volatile int supper = 0;
 
     public int onStartCommand(Intent intent, int flags, int startId) {
         return START_STICKY;
@@ -65,14 +66,15 @@ public class BackgroundService extends Service {
                 FirebaseAuth mAuth = FirebaseAuth.getInstance();
                 FirebaseUser currentUser = mAuth.getCurrentUser();
                 DatabaseReference database = FirebaseDatabase.getInstance().getReference(currentUser.getUid());
-
-                if(currentDate != new Date())
+                String date1 = new SimpleDateFormat("ddMMyyyy").format(currentDate);
+                String date2 = new SimpleDateFormat("ddMMyyyy").format(new Date());
+                if(!date1.equals(date2))
                 {
                     currentDate = new Date();
-                    breakfast = false;
-                    lunch = false;
-                    dinner = false;
-                    supper = false;
+                    breakfast = 0;
+                    lunch = 0;
+                    dinner = 0;
+                    supper = 0;
                     synchronise();
                 }
 
@@ -107,7 +109,7 @@ public class BackgroundService extends Service {
     }
 
     private void checkNoti(){
-        if(!breakfast)
+        if(breakfast == 0)
         {
             String step =  rc.getSteps();
             if(Integer.parseInt(step) > 0)
@@ -115,38 +117,38 @@ public class BackgroundService extends Service {
                 NotificationManagerInternal.showNotification(getApplicationContext(), "Breakfast", 1);
                 NotificationManagerInternal.showNotification(getApplicationContext(), "Weight", 2);
                 lastTime = new Date();
-                breakfast = true;
+                breakfast = 1;
             }
         }
         else
         {
-            long diff = lastTime.getTime() - new Date().getTime();
-            diff = diff * 1000 * 60;
-            if(!lunch)
+            long diff = new Date().getTime() - lastTime.getTime();
+            diff = (diff / 1000) / 60;
+            if(lunch == 0)
             {
                 if(diff > 150)
                 {
                     NotificationManagerInternal.showNotification(getApplicationContext(), "Lunch", 3);
                     lastTime = new Date();
-                    lunch = true;
+                    lunch = 1;
                 }
             }
-            else if(!dinner)
+            else if(dinner == 0)
             {
                 if(diff > 150)
                 {
                     NotificationManagerInternal.showNotification(getApplicationContext(), "Dinner", 4);
                     lastTime = new Date();
-                    dinner = true;
+                    dinner = 1;
                 }
             }
-            else if(!supper)
+            else if(supper == 0)
             {
                 if(diff > 150)
                 {
                     NotificationManagerInternal.showNotification(getApplicationContext(), "Supper", 5);
                     lastTime = new Date();
-                    supper = true;
+                    supper = 1;
                 }
             }
         }

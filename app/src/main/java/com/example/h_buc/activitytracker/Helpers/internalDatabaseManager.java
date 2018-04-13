@@ -6,9 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -296,7 +294,6 @@ public class internalDatabaseManager  extends SQLiteOpenHelper {
                 rec.put("Fat", c.getString(c.getColumnIndex(HISTORY_FAT)));
                 rec.put("Calories", c.getString(c.getColumnIndex(HISTORY_CALS)));
                 rec.put("Meal", c.getString(c.getColumnIndex(HISTORY_TYPE)));
-//                rec.put("Sync", c.getString(c.getColumnIndex(HISTORY_SYNC)));
 
                 records.add(rec);
             } while(c.moveToNext());

@@ -3,7 +3,6 @@ package com.example.h_buc.activitytracker;
 import android.widget.Button;
 
 import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
 
 /**
  * Created by h_buc on 08/04/2018.
@@ -16,7 +15,6 @@ public class foodLinear {
     String carbs;
     String fat;
     String cals;
-    Button delete;
 
     public foodLinear(String foodName, String weight, String prot,
                              String carb, String fat, String cals){

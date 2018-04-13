@@ -96,9 +96,8 @@
             android:layout_marginTop="8dp"
             android:ems="10"
             android:hint="Email"
-            android:inputType="textPersonName"
+            android:inputType="none"
             android:theme="@style/MyEditText"
-            android:editable="false"
              />
     </android.support.design.widget.TextInputLayout>
 

@@ -50,7 +50,6 @@
         <activity
             android:name=".searchFood"
             android:screenOrientation="portrait" />
-        <activity android:name=".FoodDialog"></activity>
     </application>
 
 </manifest>
