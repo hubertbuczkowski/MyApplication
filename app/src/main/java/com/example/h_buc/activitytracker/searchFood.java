@@ -88,8 +88,8 @@ public class searchFood extends AppCompatActivity {
         list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-                details(searchMap.get(position).get("ID"));
-
+                String str = searchMap.get(position).get("ID");
+                details(str);
             }
         });
 
@@ -100,111 +100,144 @@ public class searchFood extends AppCompatActivity {
             case "Breakfast":
                 searchResList.add("Porridge");
                 temp.put("ID", "5499dbf7e6dcce634c4693d5");
-                searchMap.add(0, temp);
+                searchMap.add(temp);
+                temp = new HashMap<>();
                 searchResList.add("Egg");
                 temp.put("ID", "513fceb375b8dbbc21000152");
-                searchMap.add(1, temp);
+                searchMap.add(temp);
+                temp = new HashMap<>();
                 searchResList.add("Bread");
                 temp.put("ID", "513fceb675b8dbbc210026a5");
-                searchMap.add(2, temp);
+                searchMap.add(temp);
+                temp = new HashMap<>();
                 searchResList.add("Butter");
                 temp.put("ID", "513fceb375b8dbbc21000003");
-                searchMap.add(3, temp);
+                searchMap.add(temp);
+                temp = new HashMap<>();
                 searchResList.add("Milk");
                 temp.put("ID", "513fceb375b8dbbc210000f1");
-                searchMap.add(4, temp);
+                searchMap.add(temp);
+                temp = new HashMap<>();
                 break;
             case "Lunch":
                 searchResList.add("Bread");
                 temp.put("ID", "513fceb675b8dbbc210026a5");
-                searchMap.add(0, temp);
+                searchMap.add(temp);
+                temp = new HashMap<>();
                 searchResList.add("Butter");
                 temp.put("ID", "513fceb375b8dbbc21000003");
-                searchMap.add(1, temp);
+                searchMap.add(temp);
+                temp = new HashMap<>();
                 searchResList.add("Porridge");
                 temp.put("ID", "5499dbf7e6dcce634c4693d5");
-                searchMap.add(2, temp);
+                searchMap.add(temp);
+                temp = new HashMap<>();
                 searchResList.add("Egg");
                 temp.put("ID", "513fceb375b8dbbc21000152");
-                searchMap.add(3, temp);
+                searchMap.add(temp);
+                temp = new HashMap<>();
                 searchResList.add("Sausage");
                 temp.put("ID", "463d623713c29a3885180c5e");
-                searchMap.add(4, temp);
+                searchMap.add(temp);
+                temp = new HashMap<>();
                 searchResList.add("Beans");
                 temp.put("ID", "513fceb675b8dbbc21002189");
-                searchMap.add(5, temp);
+                searchMap.add(temp);
+                temp = new HashMap<>();
                 searchResList.add("Rice");
                 temp.put("ID", "513fceb775b8dbbc21002e43");
-                searchMap.add(6, temp);
+                searchMap.add(temp);
+                temp = new HashMap<>();
                 searchResList.add("Chicken");
                 temp.put("ID", "51c37c1297c3e6d272824fd5");
-                searchMap.add(7, temp);
+                searchMap.add(temp);
+                temp = new HashMap<>();
                 break;
             case "Dinner":
                 searchResList.add("Rice");
                 temp.put("ID", "513fceb775b8dbbc21002e43");
-                searchMap.add(0, temp);
+                searchMap.add(temp);
+                temp = new HashMap<>();
                 searchResList.add("Chicken");
                 temp.put("ID", "51c37c1297c3e6d272824fd5");
-                searchMap.add(0, temp);
+                searchMap.add(temp);
+                temp = new HashMap<>();
                 searchResList.add("Beef");
                 temp.put("ID", "513fceb775b8dbbc210031f9");
-                searchMap.add(0, temp);
+                searchMap.add(temp);
+                temp = new HashMap<>();
                 searchResList.add("Potato");
                 temp.put("ID", "513fceb575b8dbbc210017d2");
-                searchMap.add(0, temp);
+                searchMap.add(temp);
+                temp = new HashMap<>();
                 searchResList.add("Lettuce");
                 temp.put("ID", "513fceb575b8dbbc210015a0");
-                searchMap.add(0, temp);
+                searchMap.add(temp);
+                temp = new HashMap<>();
                 searchResList.add("Pasta");
                 temp.put("ID", "56d9a58973232b6569114ef5");
-                searchMap.add(0, temp);
+                searchMap.add(temp);
+                temp = new HashMap<>();
                 searchResList.add("Tomato");
                 temp.put("ID", "513fceb575b8dbbc21001743");
-                searchMap.add(0, temp);
+                searchMap.add(temp);
+                temp = new HashMap<>();
                 break;
             case "Supper":
                 searchResList.add("Pasta");
                 temp.put("ID", "56d9a58973232b6569114ef5");
-                searchMap.add(0, temp);
+                searchMap.add(temp);
+                temp = new HashMap<>();
                 searchResList.add("Rice");
                 temp.put("ID", "513fceb775b8dbbc21002e43");
-                searchMap.add(0, temp);
+                searchMap.add(temp);
+                temp = new HashMap<>();
                 searchResList.add("Sausage");
                 temp.put("ID", "463d623713c29a3885180c5e");
-                searchMap.add(0, temp);
+                searchMap.add(temp);
+                temp = new HashMap<>();
                 searchResList.add("Pork");
                 temp.put("ID", "57cd18543f8b952b70e36da6");
-                searchMap.add(0, temp);
+                searchMap.add(temp);
+                temp = new HashMap<>();
                 searchResList.add("Pasta");
                 temp.put("ID", "56d9a58973232b6569114ef5");
-                searchMap.add(0, temp);
+                searchMap.add(temp);
+                temp = new HashMap<>();
                 searchResList.add("Beef");
                 temp.put("ID", "513fceb775b8dbbc210031f9");
-                searchMap.add(0, temp);
+                searchMap.add(temp);
+                temp = new HashMap<>();
                 searchResList.add("Chicken");
                 temp.put("ID", "51c37c1297c3e6d272824fd5");
-                searchMap.add(0, temp);
+                searchMap.add(temp);
+                temp = new HashMap<>();
                 break;
             case "Snack":
                 searchResList.add("Apple");
                 temp.put("ID", "513fceb475b8dbbc21000f93");
-                searchMap.add(0, temp);
+                searchMap.add(temp);
+                temp = new HashMap<>();
                 searchResList.add("Carrot");
                 temp.put("ID", "513fceb575b8dbbc210014e2");
-                searchMap.add(0, temp);
+                searchMap.add(temp);
+                temp = new HashMap<>();
                 searchResList.add("Protein bar");
                 temp.put("ID", "5631369e517dab4c12db31de");
-                searchMap.add(0, temp);
+                searchMap.add(temp);
+                temp = new HashMap<>();
                 searchResList.add("Orange");
                 temp.put("ID", "513fceb575b8dbbc210010bf");
-                searchMap.add(0, temp);
+                searchMap.add(temp);
+                temp = new HashMap<>();
                 searchResList.add("Grapes");
                 temp.put("ID", "513fceb575b8dbbc21001054");
-                searchMap.add(0, temp);
+                searchMap.add(temp);
+                temp = new HashMap<>();
                 searchResList.add("Pineapple");
                 temp.put("ID", "513fceb575b8dbbc21001132");
-                searchMap.add(0, temp);
+                searchMap.add(temp);
+                temp = new HashMap<>();
                 break;
         }
 
@@ -634,6 +667,7 @@ public class searchFood extends AppCompatActivity {
                 createDialog();
             } catch (JSONException e) {
                 Toast.makeText(getApplicationContext(), "Item doesn't exist in database", Toast.LENGTH_SHORT).show();
+                manualDialog("");
             }
         }
     }

@@ -35,6 +35,18 @@ public class bandController {
 
     volatile Boolean isListeningHeartRate = false;
 
+//    public bandController(Context ctx){
+//        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+//        Set<BluetoothDevice> boundedDevice = bluetoothAdapter.getBondedDevices();
+//        for (BluetoothDevice bd : boundedDevice) {
+//            if (bd.getName().contains("MI Band 2")) {
+//                this.bandAddress = bd.getAddress();
+//                this.appContext = ctx;
+//            }
+//        }
+//    }
+
+
     //find address of mi band 2
     public void getBoundedDevice(Context ctx) {
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -55,17 +67,18 @@ public class bandController {
 
     //Start heart rate
     public String startScanHeartRate(Context ctx) {
-        isListeningHeartRate = false;
-        isConnected = 0;
-        isDescriptior = false;
+        this.isListeningHeartRate = false;
+        this.isConnected = 0;
+        this.isDescriptior = false;
         while(this.bandAddress == null){}
         startConnecting();
-        while(isListeningHeartRate == false || isConnected == 0 || isDescriptior == false){
+        while(this.isListeningHeartRate == false || this.isConnected == 0 || this.isDescriptior == false){
             if(isConnected == 2)
             {
                 return "-1";
             }
         }
+
         BluetoothGattCharacteristic bchar = mBluetoothGattService.getCharacteristic(CustomBluetoothProfile.HeartRate.controlCharacteristic);
         bchar.setValue(new byte[]{21, 2, 1});
         bandController.this.readingStatus = 0;
@@ -75,6 +88,7 @@ public class bandController {
         {
         }
         this.lastHeartRate = this.lastHeartRate.replace("-", "");
+        bluetoothGatt.close();
         return this.lastHeartRate;
     }
 
@@ -115,21 +129,20 @@ public class bandController {
     }
 
     public void stateDisconnected() {
-        bluetoothGatt.disconnect();
+        bluetoothGatt.close();
     }
 
-    public final BluetoothGattCallback bluetoothGattCallback = new BluetoothGattCallback() {
+    public volatile BluetoothGattCallback bluetoothGattCallback = new BluetoothGattCallback() {
 
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
             super.onConnectionStateChange(gatt, status, newState);
 
-
             if (newState == BluetoothProfile.STATE_CONNECTED) {
                 stateConnected();
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
+                isConnected = 2;
                 stateDisconnected();
             }
-
         }
 
         //Sygnalise if smart band is connected

@@ -72,7 +72,7 @@ public class BackgroundService extends Service {
             public void run() {
                 FirebaseAuth mAuth = FirebaseAuth.getInstance();
                 FirebaseUser currentUser = mAuth.getCurrentUser();
-                DatabaseReference database = FirebaseDatabase.getInstance().getReference(currentUser.getUid());
+                final DatabaseReference database = FirebaseDatabase.getInstance().getReference(currentUser.getUid());
                 String date1 = new SimpleDateFormat("ddMMyyyy").format(currentDate);
                 String date2 = new SimpleDateFormat("ddMMyyyy").format(new Date());
                 if(!date1.equals(date2))
@@ -86,8 +86,11 @@ public class BackgroundService extends Service {
                     //Synchronise internal and external database every time when date changes
                     synchronise();
                 }
-
-                rc.update(database, getApplicationContext());
+//                new Thread(new Runnable() {
+//                    public void run() {
+                        rc.update(database, getApplicationContext());
+//                    }
+//                }).start();
 
                 checkNoti();
             }

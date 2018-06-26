@@ -22,6 +22,7 @@ import com.google.android.gms.fitness.request.DataReadRequest;
 import com.google.android.gms.fitness.result.DataReadResult;
 import com.google.firebase.database.DatabaseReference;
 
+import java.sql.Time;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -30,6 +31,7 @@ import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 
 /**
@@ -39,16 +41,18 @@ import java.util.concurrent.TimeUnit;
 //This class is responsible for mannaging all heart rate, steps and storing them on both databases
 
 public class Records implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
-    private String steps;
-    private String heartRate;
-    GoogleApiClient mClient;
-    DataSource ds;
-    DataReadRequest req;
+    volatile private String steps;
+    volatile private String heartRate;
+    volatile GoogleApiClient mClient;
+    volatile DataSource ds;
+    volatile DataReadRequest req;
+//    volatile bandController bd;
 
     public void Records(Context ctx){
 
         this.steps = "0";
         this.heartRate = "65";
+//        this.bd = new bandController(ctx);
 
         setClients(ctx);
         update();
@@ -124,10 +128,16 @@ public class Records implements GoogleApiClient.ConnectionCallbacks, GoogleApiCl
                     db.addRecord(current_date, current_time, "0", steps, false);
                 }
 
-                bandController bd = new bandController();
-                bd.getBoundedDevice(ctx);
-                String hr = bd.startScanHeartRate(ctx);
-
+//                bandController bd = new bandController(ctx);
+                String hr = "-2";
+                try {
+                    bandController bd = new bandController();
+                    bd.getBoundedDevice(ctx);
+                    hr = bd.startScanHeartRate(ctx);
+                }catch (Exception e)
+                {
+                    hr = "-1";
+                }
                 if(CheckConnection.InternetConnection())
                 {
                     database.child("Records").child(current_date).child(current_time).child("Heart Rate").setValue(hr);
@@ -138,7 +148,7 @@ public class Records implements GoogleApiClient.ConnectionCallbacks, GoogleApiCl
                     db.updateHR(current_date, current_time, hr, steps, false);
                 }
 
-                bd = null;
+//                bd = null;
             }
         }).start();
     }

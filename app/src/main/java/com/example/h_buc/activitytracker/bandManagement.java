@@ -393,7 +393,8 @@ public class bandManagement extends AppCompatActivity implements GoogleApiClient
         fat = fat + Float.parseFloat(sFat.getText().toString());
         fat = fat + Float.parseFloat(snFat.getText().toString());
         tFat.setText(df.format(fat));
-        cal = cal + Float.parseFloat(bCal.getText().toString());
+        String random = bCal.getText().toString();
+        cal = cal + Float.parseFloat(bCal.getText().toString().replace(",", ""));
         cal = cal + Float.parseFloat(lCal.getText().toString());
         cal = cal + Float.parseFloat(dCal.getText().toString());
         cal = cal + Float.parseFloat(sCal.getText().toString());
